@@ -58,3 +58,6 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+VampireSurvivors/Library/*
+VampireSurvivors/Temp/*
+VampireSurvivors/Logs/*
