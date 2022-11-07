@@ -61,3 +61,4 @@ crashlytics-build.properties
 VampireSurvivors/Library/*
 VampireSurvivors/Temp/*
 VampireSurvivors/Logs/*
+VampireSurvivors/obj/Debug/*
