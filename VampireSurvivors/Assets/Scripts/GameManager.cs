@@ -6,13 +6,14 @@ public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
 
+    [SerializeField] private List<GameObject> notMultipleObjs;
     public GameController gameController;
-    public SoundController soundController;
     public TimeScaleController timeScaleController;
     public MonsterController monsterController;
     public FocusController focusController;
-    public AudioController audioController;
     public DamageTextController damageTextController;
+    public UIController uiController;
+    public LobbyController lobbyController;
 
     [SerializeField] private List<int> stageLevels;
     public int selectStage;
@@ -32,6 +33,11 @@ public class GameManager : MonoBehaviour
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        foreach(var obj in notMultipleObjs)
+        {
+            obj.SetActive(true);
+        }
     }
 
     public int GetCurrengStageLevel()
@@ -57,15 +63,6 @@ public class GameManager : MonoBehaviour
         return Instance.timeScaleController;
     }
 
-    public static AudioController GetAudioController()
-    {
-        if(Instance == null || Instance.audioController == null)
-        {
-            return null;
-        }
-        return Instance.audioController;
-    }
-
     public static DamageTextController GetDamageTextController()
     {
         if(Instance == null || Instance.damageTextController == null)
@@ -73,5 +70,43 @@ public class GameManager : MonoBehaviour
             return null;
         }
         return Instance.damageTextController;
+    }
+
+    public static UIController GetUIController()
+    {
+        if(Instance == null || Instance.uiController == null)
+        {
+            return null;
+        }
+        return Instance.uiController;
+    }
+
+    public static LobbyController GetLobbyController()
+    {
+        if(Instance == null || Instance.lobbyController == null)
+        {
+            return null;
+        }
+        return Instance.lobbyController;
+    }
+
+    public static GameController GetGameController()
+    {
+        if (Instance == null || Instance.gameController == null)
+        {
+            return null;
+        }
+        return Instance.gameController;
+    }
+
+    public void GMReset()
+    {
+        gameController = null;
+        timeScaleController = null;
+        monsterController = null;
+        focusController = null;
+        damageTextController = null;
+        uiController = null;
+        lobbyController = null;
     }
 }

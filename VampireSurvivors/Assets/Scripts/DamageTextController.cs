@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Enums;
 
 public class DamageTextController : MonoBehaviour
 {
@@ -17,6 +18,9 @@ public class DamageTextController : MonoBehaviour
     [SerializeField] private float timePercentageOpen_2;
     [SerializeField] private float timePercentageStay;
     [SerializeField] private float timePercentageClose;
+
+    [SerializeField] private Color monster;
+    [SerializeField] private Color character;
 
     private Queue<DamageText> disableObjs;
     private Queue<DamageText> enableObjs;
@@ -54,7 +58,7 @@ public class DamageTextController : MonoBehaviour
         }
     }
 
-    public void TurnOnPopup(int damage, Vector2 pos)
+    public void TurnOnPopup(int damage, Vector2 pos, Enums.Creature creature = Enums.Creature.Monster)
     {
         DamageText damageTxt;
         if (disableObjs.Count > 0)
@@ -68,6 +72,15 @@ public class DamageTextController : MonoBehaviour
 
         damageTxt.ShowDamage(showTime, new Vector3(pos.x, pos.y, zOrder));
         damageTxt.Damage = damage;
+
+        if(creature == Enums.Creature.Character)
+        {
+            damageTxt.TextColor = character;
+        }
+        else if(creature == Enums.Creature.Monster)
+        {
+            damageTxt.TextColor = monster;
+        }
 
         enableObjs.Enqueue(damageTxt);
     }

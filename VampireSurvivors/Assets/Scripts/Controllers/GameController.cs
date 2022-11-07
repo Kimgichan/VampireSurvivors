@@ -8,7 +8,19 @@ public class GameController : MonoBehaviour
     [SerializeField] private Character player;
     [SerializeField] private VirtualJoystick joystick;
 
-    public Character Player => player;
+    public Character Player {
+        get
+        {
+            return player;
+        }
+        set
+        {
+            if (player == value) return;
+
+            player = value;
+            player.Active();
+        }
+    }
 
 
     // Start is called before the first frame update
@@ -23,21 +35,51 @@ public class GameController : MonoBehaviour
             yield break;
         }
 
+        while (GameManager.Instance.timeScaleController == null)
+            yield return null;
+
+        GameManager.Instance.timeScaleController.gameTimeScale = 0f;
+
         GameManager.Instance.gameController = this;
 
-        joystick.Drag = (dir) =>
+        joystick.Drag = (force) =>
         {
-            if(Player != null)
+            if (Player != null)
             {
-                Player.Velocity = dir;
+                //Player.Velocity = force;
+                Player.Move(force);
             }
         };
         joystick.PointerUp = (e) =>
         {
-            if(Player != null)
+            if (Player != null)
             {
-                Player.Velocity = Vector2.zero;
+                //Player.Velocity = Vector2.zero;
+                Player.Move(Vector2.zero);
             }
         };
+
+        if(Player != null)
+        {
+            Player.Active();
+        }
+
+        yield return new WaitForSeconds(1f);
+        GameManager.Instance.timeScaleController.gameTimeScale = 1f;
+    }
+
+
+    public void GameEnd()
+    {
+        var TSC = GameManager.GetTimeScaleController();
+        if(TSC != null)
+        {
+            TSC.gameTimeScale = 0f;
+        }
+
+        if(LoadSceneManager.Instance != null)
+        {
+            LoadSceneManager.Instance.LoadLobby();
+        }
     }
 }

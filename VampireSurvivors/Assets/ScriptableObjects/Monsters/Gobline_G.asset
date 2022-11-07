@@ -19,7 +19,7 @@ MonoBehaviour:
   maxDamage: 15
   attackCooltime: 1
   groggyCooltime: 3
-  moveSpeed: 0.5
+  moveSpeed: 1.25
   increaseHP: 1
   increaseMinRewardCoin: 1
   increaseMaxRewardCoin: 1

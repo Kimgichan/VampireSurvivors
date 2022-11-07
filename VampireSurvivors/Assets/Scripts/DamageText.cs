@@ -21,6 +21,12 @@ public class DamageText : MonoBehaviour
         }
     }
 
+    public Color TextColor
+    {
+        get => tmp.color;
+        set => tmp.color = value;
+    }
+
     private void Start()
     {
         gameObject.SetActive(false);

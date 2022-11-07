@@ -35,4 +35,10 @@ namespace Enums
         /// </summary>
         MaxLevel,
     }
+
+    public enum Creature
+    {
+        Character,
+        Monster,
+    }
 }

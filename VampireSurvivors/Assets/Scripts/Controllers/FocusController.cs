@@ -109,7 +109,13 @@ public class FocusController : MonoBehaviour
 
             if (maxTurn) // 확장
             {
-                focusScale += Time.deltaTime * speed;
+                var TSC = GameManager.GetTimeScaleController();
+                if (TSC != null)
+                {
+                    focusScale += TSC.GameTimeScaleUpdate * speed;
+                }
+                else
+                    focusScale += Time.deltaTime * speed;
 
                 var max = FocusData.MaxScale;
                 if(focusScale >= max)
@@ -120,7 +126,13 @@ public class FocusController : MonoBehaviour
             }
             else // 축소
             {
-                focusScale -= Time.deltaTime * speed;
+                var TSC = GameManager.GetTimeScaleController();
+                if (TSC != null)
+                {
+                    focusScale -= TSC.GameTimeScaleUpdate * speed;
+                }
+                else
+                    focusScale -= Time.deltaTime * speed;
 
                 var min = FocusData.MinScale;
                 if(focusScale <= min)

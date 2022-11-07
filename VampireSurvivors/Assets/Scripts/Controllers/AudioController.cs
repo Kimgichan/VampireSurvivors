@@ -1,103 +1,73 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Nodes;
 
 public class AudioController : MonoBehaviour
 {
-    [SerializeField] private int bgmVolume;
-    [SerializeField] private int sfxVolume;
+    [SerializeField] private List<NAudioClip> sfxList;
+    [SerializeField] private List<NAudioClip> bgmList;
 
-    [SerializeField] private List<AudioClip> sfxList;
-    [SerializeField] private List<AudioClip> bgmList;
-
-    private Dictionary<string, AudioSource> sfxAudioTable;
-    [SerializeField] private AudioSource bgmAudio;
-
-    public int BGM_Volume
-    {
-        get
-        {
-            if (bgmVolume < 0) return 0;
-            if (bgmVolume > 100) return 100;
-            return bgmVolume;
-        }
-
-        set
-        {
-            if (value < 0) value = 0;
-            else if (value > 100) value = 100;
-            bgmVolume = value;
-        }
-    }
-
-    public int SFX_Volume
-    {
-        get
-        {
-            if (sfxVolume < 0) return 0;
-            if (sfxVolume > 100) return 100;
-            return sfxVolume;
-        }
-
-        set
-        {
-            if (value < 0) value = 0;
-            else if (value > 100) value = 100;
-            sfxVolume = value;
-        }
-    }
+    private Dictionary<string, NAudioSource> sfxAudioTable;
+    [SerializeField] private NAudioSource bgmAudio;
 
     private IEnumerator Start()
     {
-        while (GameManager.Instance == null)
+        while (AudioManager.Instance == null)
             yield return null;
 
-        if(GameManager.Instance.audioController != null)
+        if(AudioManager.Instance.audioController != null)
         {
             Destroy(gameObject);
             yield break;
         }
 
-        GameManager.Instance.audioController = this;
+        AudioManager.Instance.audioController = this;
 
-        sfxAudioTable = new Dictionary<string, AudioSource>();
+        sfxAudioTable = new Dictionary<string, NAudioSource>();
 
         for(int i = 0, icount = sfxList.Count; i<icount; i++)
         {
             GameObject sfxObj = new GameObject($"sfxObj_{i}");
             var audio = sfxObj.AddComponent<AudioSource>();
-            audio.clip = sfxList[i];
+            audio.clip = sfxList[i].audioClip;
             audio.playOnAwake = false;
-            sfxAudioTable.Add(sfxList[i].name, audio);
+            sfxAudioTable.Add(sfxList[i].audioClip.name, new NAudioSource() { audioSource = audio,  soundClip = sfxList[i] });
 
             sfxObj.transform.parent = transform;
             sfxObj.transform.localPosition = Vector3.zero;
         }
 
-        PlayBGM("Cristian R. Aguiar - Dancing in the South");
+        if (bgmList.Count > 0)
+            PlayBGM(bgmList[0].audioClip.name);
     }
 
     public void PlaySFX(string name)
     {
-        if(sfxAudioTable.TryGetValue(name, out AudioSource audio))
+        if(sfxAudioTable.TryGetValue(name, out NAudioSource audio))
         {
-            audio.volume = (float)SFX_Volume * 0.01f;
-            audio.Play();
+            if (AudioManager.Instance == null) return;
+            audio.audioSource.volume = (float)AudioManager.Instance.SFX_Volume*0.01f * audio.soundClip.scale;
+            audio.audioSource.clip = audio.soundClip.audioClip;
+            audio.audioSource.Play();
         }
     }
 
     public void PlayBGM(string name)
     {
-        var clip = bgmList.Find(f => f.name.Equals(name));
+        var clip = bgmList.Find(f => f.audioClip.name.Equals(name));
         if(clip != null)
         {
-            bgmAudio.clip = clip;
-            bgmAudio.Play();
+            bgmAudio.soundClip = clip;
+            bgmAudio.audioSource.volume = (float)AudioManager.Instance.BGM_Volume * 0.01f * clip.scale;
+            bgmAudio.audioSource.clip = clip.audioClip;
+            bgmAudio.audioSource.Play();
         }
     }
 
     private void Update()
     {
-        bgmAudio.volume = (float)BGM_Volume * 0.01f;
+        if (AudioManager.Instance == null) return;
+        bgmAudio.audioSource.volume = (float)AudioManager.Instance.BGM_Volume * 0.01f * bgmAudio.soundClip.scale;
     }
 }
