@@ -15,7 +15,7 @@ MonoBehaviour:
   title: "\uD53C\uC2A4\uD1A8"
   rating: 0
   requireCoin: 15
-  cooltime: 1
+  cooltime: 0.25
   minDamage: 5
   maxDamage: 10
   maxLevel: 20

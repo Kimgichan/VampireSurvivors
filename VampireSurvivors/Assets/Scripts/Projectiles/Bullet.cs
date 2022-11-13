@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Bullet : Projectile
 {
-    [SerializeField] private Pistol weapon;
-    [SerializeField] private Collider2D collider2;
+    [SerializeField] protected Pistol weapon;
+    [SerializeField] protected Collider2D collider2;
     [SerializeField] private Rigidbody2D rigid2D;
     [SerializeField] private Vector2 dir;
     [SerializeField] private Vector3 scale;
@@ -14,7 +14,7 @@ public class Bullet : Projectile
     private bool isStart;
     private IEnumerator shootCor;
 
-    private void Start()
+    protected virtual void Start()
     {
         collider2.enabled = false;
         gameObject.SetActive(false);
@@ -22,7 +22,7 @@ public class Bullet : Projectile
     }
 
 
-    public void Shoot(Pistol weapon)
+    public virtual void Shot(Pistol weapon)
     {
         if (weapon == null) return;
 
@@ -112,7 +112,7 @@ public class Bullet : Projectile
         TurnOff();
     }
 
-    private void TurnOff()
+    protected virtual void TurnOff()
     {
         if (weapon == null)
         {

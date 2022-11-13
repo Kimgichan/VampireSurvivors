@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class DestinationFocus : Focus
 {
+    [SerializeField] private Transform parent;
     [SerializeField] private float scale;
     [SerializeField] private Vector2 destination;
 
     private IEnumerator actionCor;
+
+
+    public Vector2 TargetPos => destination;
 
     private void Start()
     {
@@ -21,11 +25,15 @@ public class DestinationFocus : Focus
         this.scale = scale;
         this.destination = destination;
 
+        parent = transform.parent;
+        transform.parent = null;
+        transform.position = this.destination;
         TurnOnActive();
     }
 
     public void OffFocus()
     {
+        transform.parent = parent;
         gameObject.SetActive(false);
         TurnOffActive();
     }

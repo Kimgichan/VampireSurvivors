@@ -31,7 +31,7 @@ public class TargetFocus : Focus
 
     private void FixedUpdate()
     {
-        if (target == null || GameManager.Instance == null || GameManager.Instance.timeScaleController == null)
+        if (target == null || (!target.gameObject.activeSelf) || GameManager.Instance == null || GameManager.Instance.timeScaleController == null)
         {
             OffFocus();
             return;

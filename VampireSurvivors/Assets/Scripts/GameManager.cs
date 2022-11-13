@@ -17,10 +17,13 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private List<int> stageLevels;
     public int selectStage;
+
+    [SerializeField] private int frameSearchCount;
     
 
     public static GameManager Instance => instance;
-    
+
+    public int FrameSearchCount => frameSearchCount;
 
     // Start is called before the first frame update
     void Awake()
@@ -97,6 +100,15 @@ public class GameManager : MonoBehaviour
             return null;
         }
         return Instance.gameController;
+    }
+
+    public static MonsterController GetMonsterController()
+    {
+        if(Instance == null || Instance.monsterController == null)
+        {
+            return null;
+        }
+        return Instance.monsterController;
     }
 
     public void GMReset()

@@ -25,6 +25,7 @@ public class Pistol : Weapon
     public TargetFocus Focus => focus;
 
     public Vector3 AttackPoint => attackPoint.position;
+    public Transform AttackPointTr => attackPoint;
 
     protected void Start()
     {
@@ -124,12 +125,12 @@ public class Pistol : Weapon
         else
         {
             DefaultRot();
-            transform.parent.eulerAngles = Vector3.zero;
         }
     }
 
     protected void DefaultRot()
     {
+        transform.parent.rotation = Quaternion.identity;
         if (defaultRight)
         {
             weaponModel.localScale = new Vector3(1f, 1f, 1f);
@@ -187,7 +188,7 @@ public class Pistol : Weapon
             {
                 for (int i = 0, icount = CM.FieldMonsterCount; i < icount; i++)
                 {
-                    if (i % 51 == 50)
+                    if (i % GameManager.Instance.FrameSearchCount + 1 == GameManager.Instance.FrameSearchCount)
                     {
                         yield return null;
                     }
@@ -240,7 +241,7 @@ public class Pistol : Weapon
             if (bullets.Count > 0)
             {
                 var bullet = bullets.Dequeue();
-                bullet.Shoot(this);
+                bullet.Shot(this);
 
                 weaponAnim.OnAttack();
 

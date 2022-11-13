@@ -15,7 +15,7 @@ MonoBehaviour:
   title: "\uB3C4\uB07C"
   rating: 0
   requireCoin: 15
-  cooltime: 1
+  cooltime: 2
   minDamage: 5
   maxDamage: 10
   maxLevel: 20

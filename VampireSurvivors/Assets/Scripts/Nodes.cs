@@ -17,4 +17,10 @@ namespace Nodes
         public NAudioClip soundClip;
         public AudioSource audioSource;
     }
+
+    [System.Serializable]
+    public class TrList
+    {
+        public List<Transform> trs;
+    }
 }

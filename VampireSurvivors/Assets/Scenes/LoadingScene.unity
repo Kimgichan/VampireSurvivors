@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 712878051}
   - component: {fileID: 712878053}
-  - component: {fileID: 712878052}
+  - component: {fileID: 712878054}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -159,9 +159,17 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2160, y: 3840}
+  m_SizeDelta: {x: 3840, y: 3840}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &712878052
+--- !u!222 &712878053
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712878050}
+  m_CullTransparentMesh: 1
+--- !u!114 &712878054
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1981132, g: 0.1981132, b: 0.1981132, a: 1}
+  m_Color: {r: 0.2735849, g: 0.2735849, b: 0.2735849, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -191,14 +199,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!222 &712878053
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 712878050}
-  m_CullTransparentMesh: 1
 --- !u!1 &874104418
 GameObject:
   m_ObjectHideFlags: 0
