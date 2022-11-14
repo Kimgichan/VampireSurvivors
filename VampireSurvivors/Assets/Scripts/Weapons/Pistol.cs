@@ -17,6 +17,7 @@ public class Pistol : Weapon
     [SerializeField] protected Bullet prefab;
     [SerializeField] protected int bulletCapacity;
     [SerializeField] protected bool defaultRight;
+    [SerializeField] protected string shot_sfxName;
 
     protected IEnumerator shootCor;
     protected IEnumerator searchFocusCor;
@@ -246,7 +247,7 @@ public class Pistol : Weapon
                 weaponAnim.OnAttack();
 
                 var AC = AudioManager.GetAudioController();
-                AC?.PlaySFX("Bullet");
+                AC?.PlaySFX(shot_sfxName);
             }
         }
 

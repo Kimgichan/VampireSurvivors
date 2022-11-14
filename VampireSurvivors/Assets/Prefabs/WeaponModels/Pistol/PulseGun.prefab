@@ -57,6 +57,7 @@ MonoBehaviour:
   prefab: {fileID: 1250805628101864857, guid: 924d2a7b4d4c531448c469634e48557f, type: 3}
   bulletCapacity: 1
   defaultRight: 0
+  shot_sfxName: Bullet
 --- !u!1001 &1648942518713883216
 PrefabInstance:
   m_ObjectHideFlags: 0

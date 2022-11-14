@@ -46,16 +46,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e649dd43992e29646a53da041a0372c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponData: {fileID: 11400000, guid: b999c353d4318d94b9977a5b7c319562, type: 2}
+  level: 1
+  equipSlotBag: {fileID: 0}
   weaponModel: {fileID: 6699123145402038291}
   attackPoint: {fileID: 9026181954120354350}
   weaponAnim: {fileID: 8273842443692885333}
-  weaponData: {fileID: 11400000, guid: b999c353d4318d94b9977a5b7c319562, type: 2}
   focus: {fileID: 1873758190108971627}
-  level: 1
   focusSize: {x: 1.53403, y: 1.53403}
   prefab: {fileID: 2571407113342089804, guid: b9819f77d3b88e9488b9739c5f5ed5f1, type: 3}
   bulletCapacity: 5
   defaultRight: 0
+  shot_sfxName: Bullet
 --- !u!1001 &1559354242603406004
 PrefabInstance:
   m_ObjectHideFlags: 0

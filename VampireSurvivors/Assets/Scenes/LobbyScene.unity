@@ -451,16 +451,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartingScreen: 0
-  PageStep: 0.8
+  PageStep: 0.5
   Pagination: {fileID: 0}
   PrevButton: {fileID: 0}
   NextButton: {fileID: 0}
-  transitionSpeed: 20
+  transitionSpeed: 5
   UseHardSwipe: 0
   UseFastSwipe: 0
   UseSwipeDeltaThreshold: 0
   FastSwipeThreshold: 0
-  SwipeVelocityThreshold: 0
+  SwipeVelocityThreshold: 36
   SwipeDeltaThreshold: 0
   UseTimeScale: 1
   MaskArea: {fileID: 0}
@@ -494,7 +494,7 @@ MonoBehaviour:
   m_Horizontal: 1
   m_Vertical: 0
   m_MovementType: 1
-  m_Elasticity: 0.0125
+  m_Elasticity: 0.0025
   m_Inertia: 1
   m_DecelerationRate: 0
   m_ScrollSensitivity: 1
@@ -597,6 +597,7 @@ MonoBehaviour:
   - {fileID: 530916816}
   - {fileID: 1600002455}
   pictureVelocity: 0
+  tooltipOpen_sfxName: Transition
 --- !u!1 &265571292
 GameObject:
   m_ObjectHideFlags: 0

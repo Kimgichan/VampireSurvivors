@@ -13,6 +13,7 @@ public class ScrollStageTooltip : MonoBehaviour
     [SerializeField] private List<BounceBox> stages;
     [SerializeField] private List<BounceBox> tooltips;
     [SerializeField] private float pictureVelocity;
+    [SerializeField] private string tooltipOpen_sfxName;
     bool tooltipOpen = false;
 
     //private void Start()
@@ -87,7 +88,7 @@ public class ScrollStageTooltip : MonoBehaviour
         var AC = AudioManager.GetAudioController();
         if(AC != null)
         {
-            AC.PlaySFX("Transition");
+            AC.PlaySFX(tooltipOpen_sfxName);
         }
     }
 
