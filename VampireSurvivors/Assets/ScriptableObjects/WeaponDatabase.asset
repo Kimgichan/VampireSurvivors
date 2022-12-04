@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a376efa52b71d1f43b4c69bd43cd42bc, type: 3}
+  m_Name: WeaponDatabase
+  m_EditorClassIdentifier: 
+  weapons:
+  - {fileID: 4472590537394028519, guid: 31e5c8689e2cbc24fb38467b2761cb04, type: 3}
+  - {fileID: 2547903427243135659, guid: 35addc219db838045a73202447f13443, type: 3}
+  - {fileID: 3967003583321690601, guid: 53e13e2890f7ad64db0d7f13b2b5deaa, type: 3}
+  - {fileID: 1863384886233306617, guid: 3b15ea79c1def6e4ab5825aca934b943, type: 3}
+  - {fileID: 3652528026871825386, guid: 8a96a51a52d397e4a8b08de0da4f7f25, type: 3}
+  keys:
+  - Ax_Normal_Data
+  - Bow_Normal_Data
+  - Pistol_Normal_Data
+  - PulseGun
