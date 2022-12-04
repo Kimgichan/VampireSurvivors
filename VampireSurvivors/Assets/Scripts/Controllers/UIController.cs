@@ -1,13 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UIController : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI goldTxt;
+
     [SerializeField] private ProgressBar hpBar;
     [SerializeField] private ProgressBar expBar;
 
+    [SerializeField] private SkillBook skillBook;
+
+
+    public SkillBook SkillBook => skillBook;
 
     /// <summary>
     /// 0~1f
@@ -36,6 +44,18 @@ public class UIController : MonoBehaviour
         }
     }
 
+    public BigInteger Gold
+    {
+        set
+        {
+            if(value < 0)
+            {
+                goldTxt.text = "0 G";
+            }
+            goldTxt.text = $"{string.Format("{0:#,0}", value.ToString())} G";
+        }
+    }
+
     private IEnumerator Start()
     {
         while (GameManager.Instance == null)
@@ -48,6 +68,11 @@ public class UIController : MonoBehaviour
         }
 
         GameManager.Instance.uiController = this;
+
+        if(GameManager.Instance.Inventory != null)
+        {
+            Gold = GameManager.Instance.Inventory.Gold;
+        }
     }
 
     public void SetHP_Percent(float percent)

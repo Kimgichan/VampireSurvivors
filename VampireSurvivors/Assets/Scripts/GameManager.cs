@@ -2,6 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Nodes;
+
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
@@ -14,16 +16,24 @@ public class GameManager : MonoBehaviour
     public DamageTextController damageTextController;
     public UIController uiController;
     public LobbyController lobbyController;
+    public SkillController skillController;
 
     [SerializeField] private List<int> stageLevels;
     public int selectStage;
 
     [SerializeField] private int frameSearchCount;
+
+    [SerializeField] private WeaponDatabase weaponDatabase;
+
+    [SerializeField] private NInventory inventory;
     
 
     public static GameManager Instance => instance;
 
     public int FrameSearchCount => frameSearchCount;
+    public WeaponDatabase WeaponDatabase => weaponDatabase;
+
+    public NInventory Inventory => inventory;
 
     // Start is called before the first frame update
     void Awake()
@@ -41,6 +51,19 @@ public class GameManager : MonoBehaviour
         {
             obj.SetActive(true);
         }
+
+        Application.targetFrameRate = 60;
+
+        InventorySetting();
+    }
+
+    private void InventorySetting()
+    {
+        inventory.Init();
+
+        inventory.Gold = 0;
+        inventory.Crystal = 0;
+        inventory.Dust = 0;
     }
 
     public int GetCurrengStageLevel()
@@ -102,6 +125,15 @@ public class GameManager : MonoBehaviour
         return Instance.gameController;
     }
 
+    public static SkillController GetSkillController()
+    {
+        if(Instance == null || Instance.skillController == null)
+        {
+            return null;
+        }
+        return Instance.skillController;
+    }
+
     public static MonsterController GetMonsterController()
     {
         if(Instance == null || Instance.monsterController == null)
@@ -109,6 +141,16 @@ public class GameManager : MonoBehaviour
             return null;
         }
         return Instance.monsterController;
+    }
+
+    public static WeaponData GetWeaponData(string name)
+    {
+        if(Instance != null)
+        {
+            Instance.weaponDatabase.GetWeaponData(name);
+        }
+
+        return null;
     }
 
     public void GMReset()

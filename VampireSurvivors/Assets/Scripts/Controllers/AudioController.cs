@@ -51,6 +51,10 @@ public class AudioController : MonoBehaviour
             audio.audioSource.clip = audio.soundClip.audioClip;
             audio.audioSource.Play();
         }
+        else
+        {
+            Debug.LogWarning($"{name}은 없는 효과음입니다.");
+        }
     }
 
     public void PlayBGM(string name)

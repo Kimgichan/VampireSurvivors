@@ -2035,6 +2035,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1147405198}
   - component: {fileID: 1147405197}
+  - component: {fileID: 1147405199}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2064,9 +2065,17 @@ MonoBehaviour:
   damageTextController: {fileID: 0}
   uiController: {fileID: 0}
   lobbyController: {fileID: 0}
+  skillController: {fileID: 0}
   stageLevels: 01000000
   selectStage: 0
   frameSearchCount: 20
+  weaponDatabase: {fileID: 0}
+  inventory:
+    goldView: 
+    crystalView: 
+    dustView: 
+    weapons: []
+    weaponSlotCapacity: 0
 --- !u!4 &1147405198
 Transform:
   m_ObjectHideFlags: 0
@@ -2084,6 +2093,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1147405199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1147405196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 927f10aa8d9324746bbc5f1b1757af61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gold: 
 --- !u!1 &1190892353
 GameObject:
   m_ObjectHideFlags: 0

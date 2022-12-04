@@ -20,8 +20,9 @@ public class Monster : Creature
     {
         get
         {
-            if (GameManager.Instance == null) return 0;
-            return MonsterData.GetHP(GameManager.Instance.GetCurrengStageLevel());
+            var MC = GameManager.GetMonsterController();
+            if (MC == null) return 0;
+            return MonsterData.GetHP(MC.MonsterLevel);
         }
     }
 
@@ -62,6 +63,18 @@ public class Monster : Creature
         gameObject.SetActive(true);
         currentHP = OriginalHP;
 
+        int level = 1;
+        var MC = GameManager.GetMonsterController();
+        if (MC != null) level = MC.MonsterLevel;
+
+        if(equipSlotBag != null)
+        {
+            for(int i = 0, icount = equipSlotBag.SlotCount; i<icount; i++)
+            {
+                equipSlotBag.SetWeaponLevel(i, level);
+            }
+        }
+
         monsterAnimator.ClearCreateCall();
         monsterAnimator.AddCreateCall(TurnOnActive);
 
@@ -93,10 +106,10 @@ public class Monster : Creature
 
     public int GetDamage()
     {
-        if (GameManager.Instance == null) return 0;
+        var MC = GameManager.GetMonsterController();
+        if (MC == null) return 0;
 
-        var GM = GameManager.Instance;
-        return Random.Range(MonsterData.GetMinDamage(GM.GetCurrengStageLevel()), MonsterData.GetMaxDamage(GM.GetCurrengStageLevel()) + 1);
+        return Random.Range(MonsterData.GetMinDamage(MC.MonsterLevel), MonsterData.GetMaxDamage(MC.MonsterLevel) + 1);
     }
 
     public void OnHit(int damage, Vector2 force)
@@ -127,6 +140,14 @@ public class Monster : Creature
         }
     }
 
+    public void Deactive()
+    {
+        //monsterAnimator.OnDeath();
+        TurnOffActive();
+        monsterAnimator.ClearCreateCall();
+        monsterAnimator.ClearDeathCall();
+    }
+
     private void Death()
     {
         if (GameManager.Instance == null || GameManager.Instance.monsterController == null) return;
@@ -136,6 +157,12 @@ public class Monster : Creature
 
         var MC = GameManager.Instance.monsterController;
         MC.Push(this);
+
+        var GC = GameManager.GetGameController();
+        if(GC != null)
+        {
+            GC.CurrentEXP += 1;
+        }
     }
 
     private IEnumerator GroggyCor(Vector2 force)

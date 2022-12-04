@@ -46,8 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e649dd43992e29646a53da041a0372c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponData: {fileID: 11400000, guid: b999c353d4318d94b9977a5b7c319562, type: 2}
-  level: 1
+  weaponInfo:
+    weaponData: {fileID: 11400000, guid: b999c353d4318d94b9977a5b7c319562, type: 2}
+    level: 1
   equipSlotBag: {fileID: 0}
   weaponModel: {fileID: 6699123145402038291}
   attackPoint: {fileID: 9026181954120354350}

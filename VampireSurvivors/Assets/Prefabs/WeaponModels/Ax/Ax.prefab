@@ -46,8 +46,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8a2917757c053741b9a0b1549099a72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponData: {fileID: 11400000, guid: 3374e459d5dfba948adad6dc057bede3, type: 2}
-  level: 1
+  weaponInfo:
+    weaponData: {fileID: 11400000, guid: 3374e459d5dfba948adad6dc057bede3, type: 2}
+    level: 1
   equipSlotBag: {fileID: 0}
   focus: {fileID: 4025897545974229028}
   axProjectile: {fileID: 8178276227213334136}

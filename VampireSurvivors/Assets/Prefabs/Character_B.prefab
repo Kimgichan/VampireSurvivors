@@ -151,6 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62ba7fbe48c54d9489b51102c7b9203a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  equipSlotBag: {fileID: 7680020345728424256}
   characterAnimator: {fileID: 6830054216190970095}
   rigid2D: {fileID: 3505999457386994103}
   currentHP: 0

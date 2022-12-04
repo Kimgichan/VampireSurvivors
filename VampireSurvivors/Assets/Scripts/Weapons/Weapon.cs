@@ -1,30 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Nodes;
 
 public class Weapon : MonoBehaviour
 {
-    [SerializeField] protected WeaponData weaponData;
-    [SerializeField] protected int level;
+    [SerializeField] protected NWeapon weaponInfo;
 
-    public WeaponData WeaponData => weaponData;
+    public WeaponData WeaponData => weaponInfo.weaponData;
     public int Level
     {
         get
         {
-            return level;
+            return weaponInfo.level;
         }
         set
         {
             if (value < 0) value = 0;
-            else if (value > weaponData.MaxLevel) value = weaponData.MaxLevel;
+            else if (value > WeaponData.MaxLevel) value = WeaponData.MaxLevel;
 
-            level = value;
+            weaponInfo.level = value;
         }
     }
 
     public virtual int GetDamage()
     {
-        return Random.Range(WeaponData.GetMinDamage(level), WeaponData.GetMaxDamage(level) + 1);
+        return Random.Range(WeaponData.GetMinDamage(Level), WeaponData.GetMaxDamage(Level) + 1);
     }
 }

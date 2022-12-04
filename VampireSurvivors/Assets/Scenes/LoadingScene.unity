@@ -308,7 +308,7 @@ MonoBehaviour:
   time: 2
   outTimePercent: 0.5
   inTimePercent: 0.5
-  maxWidth: 2160
+  maxWidth: 8640
   minWidth: 0
 --- !u!1 &1811372277
 GameObject:

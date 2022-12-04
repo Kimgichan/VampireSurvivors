@@ -146,7 +146,7 @@ public class Pistol : Weapon
     {
         while (true)
         {
-            var _cooltime = WeaponData.GetSearchCooltime(level);
+            var _cooltime = WeaponData.GetSearchCooltime(Level);
             while (_cooltime > 0f)
             {
                 yield return null;
@@ -169,7 +169,7 @@ public class Pistol : Weapon
 
             var CM = GameManager.Instance.monsterController;
             Transform target = null;
-            var minRange = WeaponData.GetRange(level);
+            var minRange = WeaponData.GetRange(Level);
 
             if (Focus.Target != null)
             {
@@ -222,7 +222,7 @@ public class Pistol : Weapon
 
     protected IEnumerator ShootCor()
     {
-        var cooltime = WeaponData.GetCooltime(level);
+        var cooltime = WeaponData.GetCooltime(Level);
 
         while (cooltime > 0f)
         {

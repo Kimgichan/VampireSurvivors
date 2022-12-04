@@ -26,18 +26,20 @@ public class AxProjectile : Projectile
     {
         hitCreatures = new HashSet<Creature>();
         collider2.enabled = false;
+        trailRenderer.enabled = false;
     }
 
     public void Shot(Ax weapon)
     {
         if (weapon == null) return;
 
+        trailRenderer.Clear();
         hitCreatures.Clear();
         this.weapon = weapon;
         gameObject.SetActive(true);
 
         transform.parent = null;
-
+        trailRenderer.enabled = true;
         collider2.enabled = true;
 
         if(actionCor != null)
@@ -81,7 +83,9 @@ public class AxProjectile : Projectile
     {
         trailRenderer.Clear();
         collider2.enabled = false;
+        trailRenderer.enabled = false;
         hitCreatures.Clear();
+        weapon.Focus.OffFocus();
         if (actionCor != null)
         {
             StopCoroutine(actionCor);
@@ -123,6 +127,11 @@ public class AxProjectile : Projectile
             yield return null;
 
             #region
+            if (!weapon.gameObject.activeInHierarchy)
+            {
+                TurnOff();
+                yield break;
+            }
             var TSC = GameManager.GetTimeScaleController();
             var _rotAngleForce = rotAngleForce;
             if(TSC != null)
@@ -156,7 +165,11 @@ public class AxProjectile : Projectile
         {
             #region
             yield return null;
-
+            if (!weapon.gameObject.activeInHierarchy)
+            {
+                TurnOff();
+                yield break;
+            }
             var TSC = GameManager.GetTimeScaleController();
             var _rotAngleForce = rotAngleForce;
             if (TSC != null)

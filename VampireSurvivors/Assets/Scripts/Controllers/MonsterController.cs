@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MonsterController : MonoBehaviour 
 {
@@ -24,6 +25,9 @@ public class MonsterController : MonoBehaviour
     [SerializeField] private float spawnCooltime;
     [SerializeField] private Transform map;
 
+    private bool isActive;
+    private IEnumerator spawnCor;
+
     /// <summary>
     /// 필드에서 활성화되지 않은 몬스터 카운트
     /// </summary>
@@ -33,13 +37,27 @@ public class MonsterController : MonoBehaviour
     /// </summary>
     public int FieldMonsterCount => fieldCount;
 
+    public int MonsterLevel
+    {
+        get
+        {
+            var GC = GameManager.GetGameController();
+            if(GC != null)
+            {
+                return GC.StageLevel;
+            }
+            return 1;
+        }
+    }
+
+
 
     private IEnumerator Start()
     {
         while (GameManager.Instance == null)
             yield return null;
 
-        if(GameManager.Instance.monsterController != null)
+        if (GameManager.Instance.monsterController != null)
         {
             Destroy(gameObject);
             yield break;
@@ -48,14 +66,15 @@ public class MonsterController : MonoBehaviour
         GameManager.Instance.monsterController = this;
 
         fieldMonsters.Clear();
-        for(int i = 0, icount = monsters.Count; i<icount; i++)
+        for (int i = 0, icount = monsters.Count; i < icount; i++)
         {
             monsters[i].transform.parent = transform;
             fieldMonsters.Add(null);
         }
         remainCount = monsters.Count;
         fieldCount = 0;
-        StartCoroutine(SpawnCor());
+
+        Active();
     }
 
     public Monster GetFieldMonster(int indx)
@@ -143,5 +162,68 @@ public class MonsterController : MonoBehaviour
             yield return null;
         }
     }
+
+    public void Active()
+    {
+        if (isActive) return;
+
+        isActive = true;
+        SpawnActive();
+    }
+
+    public void Deactive(UnityAction endEvent = null)
+    {
+        if (!isActive) return;
+
+        isActive = false;
+        SpawnDeactive();
+
+        for(int i = 0; i < fieldCount; i++)
+        {
+            var monster = fieldMonsters[i];
+            monster.transform.parent = transform;
+            monster.Deactive();
+            monster.gameObject.SetActive(false);
+
+            monsters[remainCount++] = monster;
+            fieldMonsters[i] = null;
+        }
+
+        fieldCount = 0;
+
+        if(endEvent != null)
+        {
+            endEvent();
+        }
+    }
+
+
+    private void SpawnActive()
+    {
+        if (spawnCor != null)
+        {
+            StopCoroutine(spawnCor);
+        }
+
+        spawnCor = SpawnCor();
+        StartCoroutine(spawnCor);
+    }
+
+    private void SpawnDeactive()
+    {
+        if(spawnCor != null)
+        {
+            StopCoroutine(spawnCor);
+            spawnCor = null;
+        }
+    }
+    //IEnumerator DeactiveCor(UnityAction endEvent)
+    //{
+    //    SpawnDeactive();
+    //    yield return null;
+    //    isActive = false;
+    //}
+
+
 }
 
