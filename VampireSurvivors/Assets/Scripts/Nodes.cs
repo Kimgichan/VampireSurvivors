@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
+using System;
 using UnityEngine;
 
-using System.Numerics;
+using Random = UnityEngine.Random;
+using Vector2 = UnityEngine.Vector2;
 
 namespace Nodes
 {
@@ -302,6 +305,164 @@ namespace Nodes
                     return GetRandomPortionAmount();
             }
             return 0;
+        }
+    }
+
+    [Serializable]
+    public class VampireSurvivorsClientInfo
+    {
+        public ServerClient_VampireSurvivors client;
+        public Room room;
+    }
+
+    [Serializable]
+    public class Room
+    {
+        public string stage;
+        private List<string> players;
+
+        public int Count
+        {
+            get
+            {
+                int result = players.Count;
+                for(int i = 0, icount = players.Count; i<icount; i++)
+                {
+                    if(players[i] == "")
+                    {
+                        result -= 1;
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        public Room(int capacity)
+        {
+            players = new List<string>(capacity);
+            for(int i = 0; i<capacity; i++)
+            {
+                players[i] = "";
+            }
+        }
+
+        public NetEnums.RoomEnterResult AddPlayer(string player)
+        {
+            return NetEnums.RoomEnterResult.Full;
+        }
+        public void RemovePlayer(string player)
+        {
+            for (int i = 0, icount = players.Count; i < icount; i++)
+            {
+                if (players[i] == player)
+                {
+                    players[i] = "";
+                    break;
+                }
+            }
+        }
+    }
+}
+
+namespace NetNodes
+{
+    namespace Client
+    {
+        [Serializable]
+        public struct Login
+        {
+            public string player;
+        }
+        // Logout은 파라미터 없음
+        [Serializable]
+        public struct EnterRoom
+        {
+            public string player;
+            public string stage;
+        }
+
+        [Serializable]
+        public struct CancelRoom
+        {
+            public string player;
+        }
+        //여기까지
+        [Serializable]
+        public struct Ready
+        {
+            public string player;
+            public float percent;
+        }
+    }
+
+    namespace Server
+    {
+        [Serializable]
+        public struct Login
+        {
+            public bool ok;
+            public string msg;
+        }
+        // Logout은 파라미터 없음
+        [Serializable]
+        public struct EnterRoom
+        {
+            public List<string> players;
+        }
+        [Serializable]
+        public struct CancelRoom
+        {
+            public bool ok;
+        }
+        //여기까지
+        [Serializable]
+        public struct Ready
+        {
+            public string starge;
+            public List<string> players;
+            public List<float> percents;
+        }
+
+        [Serializable]
+        public struct PlayUpdate
+        {
+            public int level;
+            public float exp;
+
+            public List<int> monsterKeys;
+            public List<Vector2> monsterPosList;
+            public List<int> monsterHPList;
+            public List<Vector2> playerPosList;
+            public List<int> playerHPList;
+        }
+
+        [Serializable]
+        public struct WeaponAction
+        {
+            public int team;
+            public int creaturekey;
+            public int slotIndx;
+            public Vector2 targetPos;
+            public bool isAttack;
+        }
+
+        [Serializable]
+        public struct CreatureHitAction
+        {
+            public int team;
+            public int creatureKey;
+        }
+
+        [Serializable]
+        public struct MonsterCreateAction 
+        {
+            public int monsterKey;
+        }
+        [Serializable]
+        public struct MonsterDeathAction
+        {
+            public int monsterKey;
         }
     }
 }
