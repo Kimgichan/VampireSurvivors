@@ -33,7 +33,7 @@ public class TCPServer_VampireSurvivors : TCPServer
         {
             clientTable.Add(client.Player, new VampireSurvivorsClientInfo() { client = client, room = null });
 
-            client.SendData_Login(new Server.Login() { ok = true, msg = "" });
+            client.SendData_Login(new Server.Login() { ok = true, msg = client.Player });
 
             return;
         }
@@ -42,7 +42,7 @@ public class TCPServer_VampireSurvivors : TCPServer
         if(info.client == null)
         {
             info.client = client;
-            client.SendData_Login(new Server.Login() { ok = true, msg = "" });
+            client.SendData_Login(new Server.Login() { ok = true, msg = client.Player });
         }
         else if (info.client.IsConntected())
         {
@@ -52,7 +52,7 @@ public class TCPServer_VampireSurvivors : TCPServer
         {
             info.client.Close();
             info.client = client;
-            client.SendData_Login(new Server.Login() { ok = true, msg = "" });
+            client.SendData_Login(new Server.Login() { ok = true, msg = client.Player });
         }
     }
     public void Logout(ServerClient_VampireSurvivors client)
@@ -96,6 +96,17 @@ public class TCPServer_VampireSurvivors : TCPServer
             }
         }
     }
+
+    public void Chat(Client.Chat chat)
+    {
+        if (chat.Player == "") return;
+
+        var echo = new Server.Chat(chat.Player, chat.MSG);
+        foreach(var client in clientTable)
+        {
+            client.Value.client.SendData_Chat(echo);
+        }
+    }
 }
 
 public class ServerClient_VampireSurvivors : ServerClient
@@ -121,7 +132,7 @@ public class ServerClient_VampireSurvivors : ServerClient
     {
         if (server == null) return;
 
-
+        server.Logout(this);
     }
 
     #region Send
@@ -141,6 +152,10 @@ public class ServerClient_VampireSurvivors : ServerClient
     public void SendData_CancelRoom(Server.CancelRoom cancelRoom)
     {
         SendData($"{(int)Data.CancelRoom_Server}/{JsonUtility.ToJson(cancelRoom)}");
+    }
+    public void SendData_Chat(Server.Chat chat)
+    {
+        SendData($"{(int)Data.Chat_Server}/{JsonUtility.ToJson(chat)}");
     }
     #endregion
 
@@ -175,6 +190,10 @@ public class ServerClient_VampireSurvivors : ServerClient
                     {
                         RecvData_CancelRoom(JsonUtility.FromJson<Client.CancelRoom>(split[1]));
                     }break;
+                case Data.Chat_Client:
+                    {
+                        RecvData_Chat(JsonUtility.FromJson<Client.Chat>(split[1]));
+                    }break;
             }
         }
         catch
@@ -198,6 +217,10 @@ public class ServerClient_VampireSurvivors : ServerClient
     private void RecvData_CancelRoom(Client.CancelRoom cancelRoom)
     {
 
+    }
+    private void RecvData_Chat(Client.Chat chat)
+    {
+        server.Chat(chat);
     }
     #endregion
 }

@@ -26,6 +26,11 @@ public class TCPClient_VampireSurvivors : TCPClient
         SendData($"{(int)Data.CancelRoom_Client}/{JsonUtility.ToJson(cancelRoom)}");
     }
 
+    public void SendData_Chat(Client.Chat chat)
+    {
+        SendData($"{(int)Data.Chat_Client}/{JsonUtility.ToJson(chat)}");
+    }
+
 
     protected override void RecvData(string data)
     {
@@ -54,6 +59,11 @@ public class TCPClient_VampireSurvivors : TCPClient
                         RecvData_CancelRoom(JsonUtility.FromJson<Server.CancelRoom>(split[1]));
                     }
                     break;
+                case Data.Chat_Server:
+                    {
+                        RecvData_Chat(JsonUtility.FromJson<Server.Chat>(split[1]));
+                    }
+                    break;
             }
         }
         catch
@@ -64,7 +74,24 @@ public class TCPClient_VampireSurvivors : TCPClient
 
     private void RecvData_Login(Server.Login login)
     {
-
+        if (login.ok)
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.player = login.msg;
+                if (LoadSceneManager.Instance != null)
+                    LoadSceneManager.Instance.LoadLobby();
+            }
+        }
+        else
+        {
+            var tc = GameManager.GetTitleController();
+            if(tc != null)
+            {
+                tc.Error = login.msg;
+                tc.LoginReset();
+            }
+        }
     }
     private void RecvData_Logout()
     {
@@ -77,5 +104,12 @@ public class TCPClient_VampireSurvivors : TCPClient
     private void RecvData_CancelRoom(Server.CancelRoom cancelRoom)
     {
         ClientTester.instance?.RecvCancelRoom(cancelRoom);
+    }
+    private void RecvData_Chat(Server.Chat chat)
+    {
+        var LC = GameManager.GetLobbyController();
+        if (LC == null) return;
+
+        LC.AddChat(chat.Player, chat.MSG);
     }
 }

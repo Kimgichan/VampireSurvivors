@@ -394,6 +394,21 @@ namespace NetNodes
             public string player;
             public float percent;
         }
+        [Serializable]
+        public struct Chat
+        {
+            [SerializeField] private string player;
+            [SerializeField] private string msg;
+
+            public string Player => player;
+            public string MSG => msg;
+
+            public Chat(string player, string msg)
+            {
+                this.player = string.Format(@"{0}", player);
+                this.msg = string.Format(@"{0}", msg);
+            }
+        }
     }
 
     namespace Server
@@ -463,6 +478,21 @@ namespace NetNodes
         public struct MonsterDeathAction
         {
             public int monsterKey;
+        }
+        [Serializable]
+        public struct Chat 
+        {
+            [SerializeField] private string player;
+            [SerializeField] private string msg;
+
+            public string Player => player;
+            public string MSG => msg;
+
+            public Chat(string player, string msg)
+            {
+                this.player = string.Format(@"{0}", player);
+                this.msg = string.Format(@"{0}", msg);
+            }
         }
     }
 }

@@ -5,6 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class LoadSceneManager : MonoBehaviour
 {
+    [SerializeField] private string titleScene;
+    [SerializeField] private string lobbyScene;
+    [SerializeField] private string playScene;
+
     private static LoadSceneManager instance;
 
     public LoadingController loadingController;
@@ -31,7 +35,9 @@ public class LoadSceneManager : MonoBehaviour
         //SceneManager.Loa
         if (loadingCor != null) return;
 
-        loadingCor = LoadStageCor();
+        //loadingCor = LoadStageCor();
+        //StartCoroutine(loadingCor);
+        loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, playScene);
         StartCoroutine(loadingCor);
     }
 
@@ -39,54 +45,23 @@ public class LoadSceneManager : MonoBehaviour
     {
         if (loadingCor != null) return;
 
-        loadingCor = LoadLobbyCor();
+        //loadingCor = LoadLobbyCor();
+        //StartCoroutine(loadingCor);
+        loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, lobbyScene);
         StartCoroutine(loadingCor);
     }
 
-    private IEnumerator LoadStageCor()
+    public void LoadTitle()
     {
-        yield return null;
-        var loadingOP = SceneManager.LoadSceneAsync("LoadingScene", LoadSceneMode.Additive);
+        if (loadingCor != null) return;
 
-        while(loadingController == null)
-        {
-            yield return null;
-        }
-
-        yield return null;
-        loadingController.CutAgent.OnCutOut();
-        while (!loadingController.CutAgent.Complete)
-        {
-            yield return null;
-        }
-
-        ControllerReset();
-        var gameOP = SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
-
-        while (!gameOP.isDone)
-        {
-            yield return null;
-        }
-        var gameScene = SceneManager.GetSceneByName("GameScene");
-        SceneManager.SetActiveScene(gameScene);
-
-        var unLobbyOP = SceneManager.UnloadSceneAsync("LobbyScene");
-
-        loadingController.CutAgent.OnCutIn();
-        while (!loadingController.CutAgent.Complete)
-        {
-            yield return null;
-        }
-        var unLoadingOP = SceneManager.UnloadSceneAsync("LoadingScene");
-
-        while((!unLobbyOP.isDone) || (!unLoadingOP.isDone))
-        {
-            yield return null;
-        }
-        loadingCor = null;
+        //loadingCor = LoadLobbyCor();
+        //StartCoroutine(loadingCor);
+        loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, titleScene);
+        StartCoroutine(loadingCor);
     }
 
-    private IEnumerator LoadLobbyCor()
+    private IEnumerator LoadSceneCor(string beforeScene, string afterScene)
     {
         yield return null;
         var loadingOP = SceneManager.LoadSceneAsync("LoadingScene", LoadSceneMode.Additive);
@@ -104,16 +79,16 @@ public class LoadSceneManager : MonoBehaviour
         }
 
         ControllerReset();
-        var gameOP = SceneManager.LoadSceneAsync("LobbyScene", LoadSceneMode.Additive);
+        var afterSceneOP = SceneManager.LoadSceneAsync(afterScene, LoadSceneMode.Additive);
 
-        while (!gameOP.isDone)
+        while (!afterSceneOP.isDone)
         {
             yield return null;
         }
-        var lobbyScene = SceneManager.GetSceneByName("LobbyScene");
-        SceneManager.SetActiveScene(lobbyScene);
+        var afterSceneScene = SceneManager.GetSceneByName(afterScene);
+        SceneManager.SetActiveScene(afterSceneScene);
 
-        var unGameOP = SceneManager.UnloadSceneAsync("GameScene");
+        var unBeforSceneOP = SceneManager.UnloadSceneAsync(beforeScene);
 
         loadingController.CutAgent.OnCutIn();
         while (!loadingController.CutAgent.Complete)
@@ -122,13 +97,14 @@ public class LoadSceneManager : MonoBehaviour
         }
         var unLoadingOP = SceneManager.UnloadSceneAsync("LoadingScene");
 
-        while((!unGameOP.isDone) || (!unLoadingOP.isDone))
+        while ((!unBeforSceneOP.isDone) || (!unLoadingOP.isDone))
         {
             yield return null;
         }
-
         loadingCor = null;
     }
+
+    
 
     public static LoadingController GetLoadingController()
     {

@@ -7,6 +7,8 @@ public class NetManager : MonoBehaviour
     private static NetManager instance;
     [SerializeField] private TCPClient_VampireSurvivors client;
 
+
+    public static NetManager Instance => instance;
     public TCPClient_VampireSurvivors Client => client;
 
     private void Awake()

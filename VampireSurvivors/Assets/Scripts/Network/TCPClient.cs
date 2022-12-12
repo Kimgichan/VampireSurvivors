@@ -30,10 +30,6 @@ public class TCPClient : MonoBehaviour
 
     public bool IsConnect => isConnect;
 
-    void Start()
-    {
-        ConnectToServer();
-    }
     private void OnDestroy()
     {
         Close();
@@ -51,7 +47,7 @@ public class TCPClient : MonoBehaviour
 
         if (!IsConntected())
         {
-            Close();
+            return;
         }
 
         if (stream.DataAvailable)
@@ -70,7 +66,6 @@ public class TCPClient : MonoBehaviour
             }
         }
     }
-
 
     public void ConnectToServer()
     {
@@ -112,6 +107,7 @@ public class TCPClient : MonoBehaviour
             try
             {
                 writer.WriteLine(data);
+                writer.Flush();
             }
             catch
             {
@@ -126,7 +122,7 @@ public class TCPClient : MonoBehaviour
     }
 
 
-    private void Close()
+    public void Close()
     {
         if (thread != null)
         {

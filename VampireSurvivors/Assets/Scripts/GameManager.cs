@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public UIController uiController;
     public LobbyController lobbyController;
     public SkillController skillController;
+    public TitleController titleController;
 
     [SerializeField] private List<int> stageLevels;
     public int selectStage;
@@ -26,7 +27,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private WeaponDatabase weaponDatabase;
 
     [SerializeField] private NInventory inventory;
-    
+    public string player = "";
 
     public static GameManager Instance => instance;
 
@@ -141,6 +142,15 @@ public class GameManager : MonoBehaviour
             return null;
         }
         return Instance.monsterController;
+    }
+
+    public static TitleController GetTitleController()
+    {
+        if(Instance == null || Instance.titleController == null)
+        {
+            return null;
+        }
+        return Instance.titleController;
     }
 
     public static WeaponData GetWeaponData(string name)

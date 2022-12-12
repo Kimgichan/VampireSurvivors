@@ -31,6 +31,7 @@ namespace NetEnums
         Logout_Client,
         EnterRoom_Client,
         CancelRoom_Client,
+        Chat_Client,
         #endregion
 
         #region Server
@@ -38,6 +39,7 @@ namespace NetEnums
         Logout_Server,
         EnterRoom_Server,
         CancelRoom_Server,
+        Chat_Server,
         #endregion
     }
 

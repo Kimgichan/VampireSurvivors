@@ -189,7 +189,7 @@ public class ServerClient
     }
 
     protected virtual void RecvData(string data) {}
-    public void SendData(string data)
+    protected void SendData(string data)
     {
         if(writer != null)
         {
