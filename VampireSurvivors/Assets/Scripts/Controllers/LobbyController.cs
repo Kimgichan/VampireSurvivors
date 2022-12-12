@@ -48,6 +48,7 @@ public class LobbyController : MonoBehaviour
         chatOpenBtn.onClick.AddListener(OnClick_ChatOpen);
         chatPanel.onClick.AddListener(OnClick_ChatClose);
         chatInputField.onSubmit.AddListener(OnSubmit_Chat);
+        chatInputField.textComponent.richText = false;
     }
 
     public void AddChat(string player, string content)
@@ -166,6 +167,7 @@ public class LobbyController : MonoBehaviour
             StopCoroutine(chatOpenCor);
         }
 
+        chatInputField.text = "";
         chatOpenCor = ChatCloseCor();
         StartCoroutine(chatOpenCor);
     }
