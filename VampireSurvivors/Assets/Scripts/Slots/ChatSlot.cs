@@ -18,6 +18,18 @@ public class ChatSlot : MonoBehaviour
     [SerializeField] TextMeshProUGUI content;
     [SerializeField] private float gap;
 
+    public void Start()
+    {
+        if(player != null)
+        {
+            player.richText = false;
+        }
+
+        if(content != null)
+        {
+            content.richText = false;
+        }
+    }
 
     public void Write(string player, string content)
     {
