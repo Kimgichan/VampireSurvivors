@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Nodes;
 using NetEnums;
+using UnityEngine.SceneManagement;
 
 using Client = NetNodes.Client;
 using Server = NetNodes.Server;
@@ -13,14 +14,16 @@ public class TCPServer_VampireSurvivors : TCPServer
     private Dictionary<string, VampireSurvivorsClientInfo> clientTable;
 
     /// <summary>
-    /// 자료구조의 Queue 아님
+    /// 자료구조의 Queue 아님, 그냥 대기열이라는 의미.
     /// </summary>
     private Dictionary<string, LinkedList<Room>> queueRooms;
+    private Queue<Room> readyRooms;
 
     protected override void Init()
     {
         clientTable = new Dictionary<string, VampireSurvivorsClientInfo>();
         queueRooms = new Dictionary<string, LinkedList<Room>>();
+        readyRooms = new Queue<Room>();
     }
     protected override ServerClient CreateServerClient()
     {
@@ -77,9 +80,9 @@ public class TCPServer_VampireSurvivors : TCPServer
             {
                 info.room.RemovePlayer(client.Player);
 
-                if (info.room.Count <= 0)
+                if (info.room.PlayerCount <= 0)
                 {
-                    if(queueRooms.TryGetValue(info.room.stage, out LinkedList<Room> rooms))
+                    if(queueRooms.TryGetValue(info.room.Stage, out LinkedList<Room> rooms))
                     {
                         for(var pivot = rooms.First; pivot != null; pivot = pivot.Next)
                         {
@@ -106,6 +109,114 @@ public class TCPServer_VampireSurvivors : TCPServer
         {
             client.Value.client.SendData_Chat(echo);
         }
+    }
+
+    public void EnterRoom(Client.EnterRoom enterRoom)
+    {
+        if(queueRooms.TryGetValue(enterRoom.stage, out LinkedList<Room> rooms))
+        {
+            for(var node = rooms.First; node != null; node = node.Next)
+            {
+                var room = node.Value;
+                if(room.RoomSize == enterRoom.size)
+                {
+                    var result = room.AddPlayer(enterRoom.player);
+                    switch (result)
+                    {
+                        case RoomEnterResult.Success:
+                            {
+                                if(clientTable.TryGetValue(enterRoom.player, out VampireSurvivorsClientInfo clientInfo))
+                                {
+                                    clientInfo.room = room;
+
+                                    if (room.PlayerCount == room.RoomSize)
+                                    {
+                                        room.isRun = true;
+                                        rooms.Remove(room);
+                                        readyRooms.Enqueue(room);
+                                    }
+
+                                    RoomEcho(room);
+                                }
+                            }break;
+                        case RoomEnterResult.Multiple:
+                            {
+                                if (clientTable.TryGetValue(enterRoom.player, out VampireSurvivorsClientInfo clientInfo))
+                                {
+                                    clientInfo.client.SendData_CancelRoom();
+                                }
+                            }
+                            break;
+                        case RoomEnterResult.Full:
+                            {
+                                if (clientTable.TryGetValue(enterRoom.player, out VampireSurvivorsClientInfo clientInfo))
+                                {
+                                    clientInfo.client.SendData_CancelRoom();
+                                }
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            var newRoom = new Room(enterRoom.size, enterRoom.stage);
+            newRoom.AddPlayer(enterRoom.player);
+            var newRooms = new LinkedList<Room>();
+            newRooms.AddFirst(newRoom);
+            queueRooms.Add(enterRoom.stage, newRooms);
+        }
+    }
+    private void RoomEcho(Room room)
+    {
+        if (room.isRun)
+        {
+            var sendData = room.GetReady();
+            for(int i = 0, icount = room.RoomSize; i<icount; i++)
+            {
+                var player = room.GetPlayer(i);
+                if (player == "") continue;
+
+                if(clientTable.TryGetValue(player, out VampireSurvivorsClientInfo clientInfo))
+                {
+                    clientInfo.client.SendData_Ready(sendData);
+                }
+            }
+        }
+        else
+        {
+            var sendData = room.GetEnterRoom();
+            for (int i = 0, icount = room.RoomSize; i < icount; i++)
+            {
+                var player = room.GetPlayer(i);
+                if (player == "") continue;
+
+                if (clientTable.TryGetValue(player, out VampireSurvivorsClientInfo clientInfo))
+                {
+                    clientInfo.client.SendData_EnterRoom(sendData);
+                }
+            }
+        }
+    }
+
+    public Room Pop()
+    {
+        if (readyRooms == null) return null;
+        if(readyRooms.Count > 0)
+        {
+            return readyRooms.Dequeue();
+        }
+        return null;
+    }
+
+    public VampireSurvivorsClientInfo GetClientInfo(string player)
+    {
+        if(clientTable.TryGetValue(player, out VampireSurvivorsClientInfo clientInfo))
+        {
+            return clientInfo;
+        }
+        return null;
     }
 }
 
@@ -149,13 +260,21 @@ public class ServerClient_VampireSurvivors : ServerClient
     {
         SendData($"{(int)Data.EnterRoom_Server}/{JsonUtility.ToJson(enterRoom)}");
     }
-    public void SendData_CancelRoom(Server.CancelRoom cancelRoom)
+    public void SendData_CancelRoom()
     {
-        SendData($"{(int)Data.CancelRoom_Server}/{JsonUtility.ToJson(cancelRoom)}");
+        SendData($"{(int)Data.CancelRoom_Server}/");
     }
     public void SendData_Chat(Server.Chat chat)
     {
         SendData($"{(int)Data.Chat_Server}/{JsonUtility.ToJson(chat)}");
+    }
+    public void SendData_Ready(Server.Ready ready)
+    {
+        SendData($"{(int)Data.Ready_Server}/{JsonUtility.ToJson(ready)}");
+    }
+    public void SendData_GameTick(Server.GameTick data)
+    {
+        SendData($"{(int)Data.GameTick_Server}/{JsonUtility.ToJson(data)}");
     }
     #endregion
 
@@ -203,6 +322,12 @@ public class ServerClient_VampireSurvivors : ServerClient
     }
     private void RecvData_Login(Client.Login login)
     {
+        if(login.player == "")
+        {
+            SendData_Login(new Server.Login() { ok = false, msg = "닉네임을 설정하지 않았습니다." });
+            return;
+        }
+
         player = login.player;
         server.Login(this);
     }
@@ -212,7 +337,13 @@ public class ServerClient_VampireSurvivors : ServerClient
     }
     private void RecvData_EnterRoom(Client.EnterRoom enterRoom)
     {
+        if(enterRoom.size < 1 || enterRoom.stage == "" || enterRoom.player == "")
+        {
+            SendData_CancelRoom();
+            return;
+        }
 
+        server.EnterRoom(enterRoom);
     }
     private void RecvData_CancelRoom(Client.CancelRoom cancelRoom)
     {

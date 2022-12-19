@@ -9,14 +9,17 @@ public class LobbyController : MonoBehaviour
 {
     [SerializeField] private float chatOpenTime;
     [SerializeField] private Button chatOpenBtn;
-    [SerializeField] private Button chatPanel;
-    [SerializeField] private TMP_InputField chatInputField;
+    [SerializeField] private ChatPanel chatPanel;
+    [SerializeField] private Button chatCloseBtn;
     [SerializeField] private RectTransform chatBoard;
-    [SerializeField] private Transform chatContent;
-    [SerializeField] private ChatSlot chatPrefab;
-    [SerializeField] private int chatCapacity;
-    private Queue<ChatSlot> chats;
     private IEnumerator chatOpenCor;
+
+    [Space]
+    [SerializeField] Button playPanelOpenBtn;
+    [SerializeField] private PlayPanel playPanel;
+    [SerializeField] private Button playPanelCloseBtn;
+    [SerializeField] private float playPanelOnOffTime;
+    private IEnumerator playPanelSwitchCor;
 
     private IEnumerator Start()
     {
@@ -31,6 +34,7 @@ public class LobbyController : MonoBehaviour
 
         GameManager.Instance.lobbyController = this;
         ChatInit();
+        PlayPanelInit();
     }
 
     public void GameStart()
@@ -41,37 +45,31 @@ public class LobbyController : MonoBehaviour
         }
     }
 
+    #region Chat Panel
     private void ChatInit()
     {
-        chats = new Queue<ChatSlot>(chatCapacity);
-
         chatOpenBtn.onClick.AddListener(OnClick_ChatOpen);
-        chatPanel.onClick.AddListener(OnClick_ChatClose);
-        chatInputField.onSubmit.AddListener(OnSubmit_Chat);
-        chatInputField.textComponent.richText = false;
+        var btn = chatPanel.GetComponent<Button>();
+        if (btn != null)
+        {
+            btn.onClick.AddListener(OnClick_ChatClose);
+        }
     }
 
     public void AddChat(string player, string content)
     {
-        if (chatContent == null || chatPrefab == null) return;
-
-        while(chats.Count >= chatCapacity)
+        if(chatPanel != null)
         {
-            var chatSlot = chats.Dequeue();
-            Destroy(chatSlot);
+            chatPanel.AddChat(player, content);
         }
-
-        var newChat = Instantiate(chatPrefab, chatContent);
-        newChat.Write(player, content);
-        chats.Enqueue(newChat);
     }
 
     private IEnumerator ChatOpenCor()
     {
-        if (chatPanel == null) yield break;
+        if (chatCloseBtn == null) yield break;
         if (chatBoard == null) yield break;
 
-        var image = chatPanel.image;
+        var image = chatCloseBtn.image;
         var timer = 0f;
         while (timer < chatOpenTime)
         {
@@ -111,10 +109,10 @@ public class LobbyController : MonoBehaviour
     }
     private IEnumerator ChatCloseCor()
     {
-        if (chatPanel == null) yield break;
+        if (chatCloseBtn == null) yield break;
         if (chatBoard == null) yield break;
 
-        var image = chatPanel.image;
+        var image = chatCloseBtn.image;
         var timer = 0f;
         while (timer < chatOpenTime)
         {
@@ -141,17 +139,17 @@ public class LobbyController : MonoBehaviour
         }
 
         chatOpenBtn.gameObject.SetActive(true);
-        chatPanel.gameObject.SetActive(false);
+        chatCloseBtn.gameObject.SetActive(false);
         chatOpenCor = null;
     }
     private void OnClick_ChatOpen()
     {
-        if (chatOpenBtn == null || chatPanel == null) return;
+        if (chatOpenBtn == null || chatCloseBtn == null || chatPanel == null) return;
 
         chatOpenBtn.gameObject.SetActive(false);
-        chatPanel.gameObject.SetActive(true);
+        chatCloseBtn.gameObject.SetActive(true);
 
-        SetChatScrollBottom();
+        chatPanel.SetChatScrollBottom();
 
         if(chatOpenCor != null)
         {
@@ -167,32 +165,118 @@ public class LobbyController : MonoBehaviour
             StopCoroutine(chatOpenCor);
         }
 
-        chatInputField.text = "";
+        if (chatPanel != null)
+        {
+            chatPanel.ChatReset();
+        }
         chatOpenCor = ChatCloseCor();
         StartCoroutine(chatOpenCor);
     }
-    private void OnSubmit_Chat(string msg)
+    #endregion
+
+    #region Play Panel
+    private void PlayPanelInit()
     {
-        chatInputField.text = "";
-        SetChatScrollBottom();
-
-        if (NetManager.Instance == null || NetManager.Instance.Client == null)
-            return;
-
-        if (GameManager.Instance == null || GameManager.Instance.player == "")
-            return;
-        var chat = new NetNodes.Client.Chat(GameManager.Instance.player, msg);
-        NetManager.Instance.Client.SendData_Chat(chat);
+        playPanelOpenBtn.onClick.AddListener(PlayPanelOpen);
+        playPanelCloseBtn.onClick.AddListener(PlayPanelClose);
     }
-    private void SetChatScrollBottom()
+    private void PlayPanelOpen()
     {
-        if (chatBoard != null)
+        if(playPanelSwitchCor != null)
         {
-            var scroll = chatBoard.GetComponent<ScrollRect>();
-            if (scroll != null)
-            {
-                scroll.normalizedPosition = Vector2.zero;
-            }
+            StopCoroutine(playPanelSwitchCor);
         }
+
+        playPanelSwitchCor = PlayPanelOpenCor();
+        StartCoroutine(playPanelSwitchCor);
     }
+
+    public void EnterRoom(in NetNodes.Server.EnterRoom enterRoom)
+    {
+        playPanel.PlayUpdate(enterRoom);
+    }
+
+    private void PlayPanelClose()
+    {
+        if (playPanel.IsStayActive)
+        {
+            return;
+        }
+
+        if(playPanelSwitchCor != null)
+        {
+            StopCoroutine(playPanelSwitchCor);
+        }
+        playPanelSwitchCor = PlayPanelCloseCor();
+        StartCoroutine(playPanelSwitchCor);
+    }
+    private IEnumerator PlayPanelOpenCor()
+    {
+        playPanel.gameObject.SetActive(true);
+        var timer = 0f;
+        var group = playPanelCloseBtn.GetComponent<CanvasGroup>();
+
+        if(group == null)
+        {
+            playPanelSwitchCor = null;
+            yield break;
+        }
+        while(timer < playPanelOnOffTime)
+        {
+            yield return null;
+
+            var TSC = GameManager.GetTimeScaleController();
+            if(TSC != null)
+            {
+                timer += TSC.UITimeScaleUpdate;
+            }
+            else
+            {
+                timer += Time.deltaTime;
+            }
+
+            group.alpha = Mathf.Lerp(0f, 1f, timer / playPanelOnOffTime);
+        }
+
+        group.alpha = 1f;
+        playPanelSwitchCor = null;
+    }
+    private IEnumerator PlayPanelCloseCor()
+    {
+        var timer = 0f;
+        var group = playPanelCloseBtn.GetComponent<CanvasGroup>();
+       
+        if (group == null)
+        {
+            playPanelSwitchCor = null;
+            yield break;
+        }
+
+        group.interactable = false;
+        while (timer < playPanelOnOffTime)
+        {
+            yield return null;
+
+            var TSC = GameManager.GetTimeScaleController();
+            if (TSC != null)
+            {
+                timer += TSC.UITimeScaleUpdate;
+            }
+            else
+            {
+                timer += Time.deltaTime;
+            }
+
+            group.alpha = Mathf.Lerp(1f, 0f, timer / playPanelOnOffTime);
+        }
+
+        group.interactable = true;
+        playPanel.gameObject.SetActive(false);
+        playPanelSwitchCor = null;
+    }
+    public void CancelRoom()
+    {
+        playPanel?.CancelRoom();
+    }
+    #endregion
 }

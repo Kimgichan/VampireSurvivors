@@ -51,10 +51,42 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     private IEnumerator Start()
     {
+        while(NetManager.Instance == null)
+        {
+            yield return null;
+        }
+
+        while (NetManager.Instance.Server == null && NetManager.Instance.Client == null)
+            yield return null;
+
+        if (NetManager.Instance.Server != null)
+        {
+            var serverInitCor = ServerInitCor();
+            while (serverInitCor.MoveNext())
+            {
+                yield return serverInitCor.Current;
+            }
+        }
+        else
+        {
+            var clientInitCor = ClientInitCor();
+            while (clientInitCor.MoveNext())
+            {
+                yield return clientInitCor.Current;
+            }
+        }
+    }
+
+    private IEnumerator ServerInitCor()
+    {
+        yield return null;
+    }
+    private IEnumerator ClientInitCor()
+    {
         while (GameManager.Instance == null)
             yield return null;
 
-        if(GameManager.Instance.gameController != null)
+        if (GameManager.Instance.gameController != null)
         {
             Destroy(gameObject);
             yield break;
@@ -93,7 +125,7 @@ public class GameController : MonoBehaviour
             }
         };
 
-        if(Player != null)
+        if (Player != null)
         {
             Player.Active();
         }
@@ -142,12 +174,6 @@ public class GameController : MonoBehaviour
     private void LevelUP()
     {
         stageLevel += 1;
-        var MC = GameManager.GetMonsterController();
-        if(MC != null)
-        {
-            MC.Deactive();
-            //MC.Active();
-        }
 
         OnStop();
 
@@ -156,7 +182,7 @@ public class GameController : MonoBehaviour
         {
             UC.SkillBook.gameObject.SetActive(true);
             UC.SkillBook.Active();
-        }
+        }  
     }
 
     public void OnStop()
@@ -173,12 +199,6 @@ public class GameController : MonoBehaviour
         if (TSC != null)
         {
             TSC.gameTimeScale = 1f;
-        }
-
-        var MC = GameManager.GetMonsterController();
-        if (MC != null)
-        {
-            MC.Active();
         }
     }
 }

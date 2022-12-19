@@ -846,6 +846,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   client: {fileID: 902577340}
+  server: {fileID: 0}
 --- !u!4 &902577339
 Transform:
   m_ObjectHideFlags: 0
@@ -873,7 +874,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8f58bea33854154fbdbbd366b6323d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hostIP: 122.202.35.123
+  hostIP: 114.199.205.79
   port: 5000
   connectTimeout: 5
 --- !u!1 &948676057

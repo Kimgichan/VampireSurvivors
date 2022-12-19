@@ -47,4 +47,5 @@ MonoBehaviour:
   titleScene: TitleScene
   lobbyScene: LobbyScene
   playScene: GameScene
+  roomLobbyScene: RoomLobbyScene
   loadingController: {fileID: 0}

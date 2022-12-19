@@ -559,13 +559,12 @@ MonoBehaviour:
   - {fileID: 1339021183}
   - {fileID: 1432471447}
   - {fileID: 131594404}
-  remainCount: 0
-  fieldMonsters: []
-  fieldCount: 0
-  capacity: 100
-  spawnRange: {x: 7, y: 12}
-  spawnCooltime: 0.5
   map: {fileID: 2147248540}
+  lerpTime: 0
+  currentInfo:
+    ID_List: 
+    posList: []
+    currentHPList: 
 --- !u!1 &245230149
 GameObject:
   m_ObjectHideFlags: 0
@@ -2991,6 +2990,8 @@ MonoBehaviour:
   uiController: {fileID: 0}
   lobbyController: {fileID: 0}
   skillController: {fileID: 0}
+  titleController: {fileID: 0}
+  roomLobbyController: {fileID: 0}
   stageLevels: 01000000
   selectStage: 0
   frameSearchCount: 20
@@ -3001,6 +3002,7 @@ MonoBehaviour:
     dustView: 
     weapons: []
     weaponSlotCapacity: 16
+  player: 
 --- !u!4 &1147405198
 Transform:
   m_ObjectHideFlags: 0
@@ -6752,7 +6754,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3505999457386994107, guid: ce1e51fe7fd6adf4096f5f0f60f12be7, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5130908738783473316, guid: ce1e51fe7fd6adf4096f5f0f60f12be7, type: 3}
       propertyPath: bgmVolume

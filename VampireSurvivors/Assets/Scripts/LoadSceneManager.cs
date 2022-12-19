@@ -8,6 +8,7 @@ public class LoadSceneManager : MonoBehaviour
     [SerializeField] private string titleScene;
     [SerializeField] private string lobbyScene;
     [SerializeField] private string playScene;
+    [SerializeField] private string roomLobbyScene;
 
     private static LoadSceneManager instance;
 
@@ -58,6 +59,14 @@ public class LoadSceneManager : MonoBehaviour
         //loadingCor = LoadLobbyCor();
         //StartCoroutine(loadingCor);
         loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, titleScene);
+        StartCoroutine(loadingCor);
+    }
+
+    public void LoadRoomLobby()
+    {
+        if (loadingCor != null) return;
+
+        loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, roomLobbyScene);
         StartCoroutine(loadingCor);
     }
 

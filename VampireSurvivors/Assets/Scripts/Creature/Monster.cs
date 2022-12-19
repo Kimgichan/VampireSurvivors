@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NaughtyAttributes;
 
 public class Monster : Creature
 {
+    [ReadOnly] public int id;
     [SerializeField] private MonsterAnimator monsterAnimator;
     [SerializeField] private MonsterData monsterData;
     [SerializeField] private Rigidbody2D rigid2D;
@@ -25,7 +27,11 @@ public class Monster : Creature
             return MonsterData.GetHP(MC.MonsterLevel);
         }
     }
-
+    public int CurrentHP
+    {
+        get => currentHP;
+        set => currentHP = value;
+    }
 
     private void OnCollisionStay2D(Collision2D collision)
     {

@@ -39,6 +39,6 @@ Material:
     m_Ints: []
     m_Floats:
     - _Speed: -0.5
-    - _Tilling: 14
+    - _Tilling: 13.3
     m_Colors: []
   m_BuildTextureStacks: []

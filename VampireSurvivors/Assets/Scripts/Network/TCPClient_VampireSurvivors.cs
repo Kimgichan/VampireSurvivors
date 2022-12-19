@@ -56,12 +56,22 @@ public class TCPClient_VampireSurvivors : TCPClient
                     break;
                 case Data.CancelRoom_Server:
                     {
-                        RecvData_CancelRoom(JsonUtility.FromJson<Server.CancelRoom>(split[1]));
+                        RecvData_CancelRoom();
                     }
                     break;
                 case Data.Chat_Server:
                     {
                         RecvData_Chat(JsonUtility.FromJson<Server.Chat>(split[1]));
+                    }
+                    break;
+                case Data.Ready_Server:
+                    {
+                        RecvData_Ready(JsonUtility.FromJson<Server.Ready>(split[1]));
+                    }
+                    break;
+                case Data.GameTick_Server:
+                    {
+                        RecvData_GameTick(JsonUtility.FromJson<Server.GameTick>(split[1]));
                     }
                     break;
             }
@@ -99,11 +109,19 @@ public class TCPClient_VampireSurvivors : TCPClient
     }
     private void RecvData_EnterRoom(Server.EnterRoom enterRoom)
     {
-        ClientTester.instance?.RecvEnterRoom(enterRoom);
+        var LC = GameManager.GetLobbyController();
+        if(LC != null)
+        {
+            LC.EnterRoom(enterRoom);
+        }
     }
-    private void RecvData_CancelRoom(Server.CancelRoom cancelRoom)
+    private void RecvData_CancelRoom()
     {
-        ClientTester.instance?.RecvCancelRoom(cancelRoom);
+        var LC = GameManager.GetLobbyController();
+        if(LC != null)
+        {
+            LC.CancelRoom();
+        }
     }
     private void RecvData_Chat(Server.Chat chat)
     {
@@ -111,5 +129,33 @@ public class TCPClient_VampireSurvivors : TCPClient
         if (LC == null) return;
 
         LC.AddChat(chat.Player, chat.MSG);
+    }
+    private void RecvData_Ready(Server.Ready ready)
+    {
+        var LC = GameManager.GetLobbyController();
+        if(LC != null)
+        {
+            if (GameManager.Instance != null)
+            {
+                if(GameManager.Instance.player != "" && LoadSceneManager.Instance != null)
+                {
+                    LoadSceneManager.Instance.LoadRoomLobby();
+                }
+            }
+        }
+
+        var RLC = GameManager.GetRoomLobbyController();
+        if(RLC != null)
+        {
+            RLC.SetReady(ready);
+        }
+    }
+    private void RecvData_GameTick(Server.GameTick gameTick)
+    {
+        var MC = GameManager.GetMonsterController();
+        if(MC != null)
+        {
+            MC.Update(gameTick.monstersInfo);
+        }
     }
 }

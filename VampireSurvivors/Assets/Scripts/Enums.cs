@@ -40,6 +40,8 @@ namespace NetEnums
         EnterRoom_Server,
         CancelRoom_Server,
         Chat_Server,
+        Ready_Server,
+        GameTick_Server,
         #endregion
     }
 

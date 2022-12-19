@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System;
 using UnityEngine;
+using NaughtyAttributes;
 
 using Random = UnityEngine.Random;
 using Vector2 = UnityEngine.Vector2;
@@ -318,10 +319,14 @@ namespace Nodes
     [Serializable]
     public class Room
     {
-        public string stage;
-        private List<string> players;
+        [ReadOnly] public bool isRun;
+        [ReadOnly] [SerializeField] private string stage;
+        [ReadOnly] [SerializeField] private List<string> players;
+        [ReadOnly] [SerializeField] private List<float> percents;
 
-        public int Count
+
+        public string Stage => stage;
+        public int PlayerCount
         {
             get
             {
@@ -337,19 +342,51 @@ namespace Nodes
                 return result;
             }
         }
-
-        public Room(int capacity)
+        public int RoomSize
         {
+            get
+            {
+                return players.Count;
+            }
+        }
+
+        public Room(int capacity, string stage)
+        {
+            this.stage = stage;
             players = new List<string>(capacity);
+            percents = new List<float>(capacity);
             for(int i = 0; i<capacity; i++)
             {
-                players[i] = "";
+                players.Add("");
+                percents.Add(0f); 
             }
+
+            isRun = false;
         }
 
         public NetEnums.RoomEnterResult AddPlayer(string player)
         {
-            return NetEnums.RoomEnterResult.Full;
+            if (PlayerCount == RoomSize)
+                return NetEnums.RoomEnterResult.Full;
+            else
+            {
+                if (players.Contains(player))
+                {
+                    return NetEnums.RoomEnterResult.Multiple;
+                }
+                else
+                {
+                    for(int i = 0, icount = RoomSize; i<icount; i++)
+                    {
+                        if(players[i] == "")
+                        {
+                            players[i] = player;
+                            break;
+                        }
+                    }
+                    return NetEnums.RoomEnterResult.Success;
+                }
+            }
         }
         public void RemovePlayer(string player)
         {
@@ -361,6 +398,36 @@ namespace Nodes
                     break;
                 }
             }
+        }
+
+        public string GetPlayer(int indx)
+        {
+            if (players == null) return "";
+            return players[indx];
+        }
+        public float GetPercent(int indx)
+        {
+            return percents[indx];
+        }
+        public void SetPercent(int indx, float val)
+        {
+            percents[indx] = val;
+        }
+
+        public NetNodes.Server.EnterRoom GetEnterRoom()
+        {
+            var _return = new NetNodes.Server.EnterRoom();
+            _return.players = new List<string>(players);
+            return _return;
+        }
+
+        public NetNodes.Server.Ready GetReady()
+        {
+            var _return = new NetNodes.Server.Ready();
+            _return.stage = stage;
+            _return.players = new List<string>(players);
+            _return.percents = new List<float>(percents);
+            return _return;
         }
     }
 }
@@ -378,6 +445,7 @@ namespace NetNodes
         [Serializable]
         public struct EnterRoom
         {
+            public int size;
             public string player;
             public string stage;
         }
@@ -424,32 +492,59 @@ namespace NetNodes
         public struct EnterRoom
         {
             public List<string> players;
+
+            public int RoomSize
+            {
+                get
+                {
+                    return players.Count;
+                }
+            }
+            public int PlayerCount
+            {
+                get
+                {
+                    int result = RoomSize;
+                    for(int i = 0, icount = RoomSize; i<icount; i++)
+                    {
+                        if(players[i] == "")
+                        {
+                            result -= 1;
+                        }
+                    }
+
+                    return result;
+                }
+            }
         }
-        [Serializable]
-        public struct CancelRoom
-        {
-            public bool ok;
-        }
+        // CancelRoom은 파라미터 없음
         //여기까지
         [Serializable]
         public struct Ready
         {
-            public string starge;
+            public string stage;
             public List<string> players;
             public List<float> percents;
         }
 
         [Serializable]
-        public struct PlayUpdate
+        public struct GameTick
         {
-            public int level;
-            public float exp;
+            public MonstersInfo monstersInfo;
+        }
+        [Serializable]
+        public struct MonstersInfo
+        {
+            public int[] ID_List;
+            public Vector2[] posList;
+            public int[] currentHPList;
 
-            public List<int> monsterKeys;
-            public List<Vector2> monsterPosList;
-            public List<int> monsterHPList;
-            public List<Vector2> playerPosList;
-            public List<int> playerHPList;
+            public static MonstersInfo zero => new MonstersInfo()
+            {
+                ID_List = new int[0],
+                posList = new Vector2[0],
+                currentHPList = new int[0]
+            };
         }
 
         [Serializable]
