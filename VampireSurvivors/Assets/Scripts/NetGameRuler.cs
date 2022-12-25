@@ -9,13 +9,17 @@ using NaughtyAttributes;
 /// </summary>
 public class NetGameRuler : MonoBehaviour
 {
-    [ReadOnly][SerializeField] private Nodes.Room room;
+    private Nodes.Room room;
     [SerializeField] private NetGameAgent gameAgent;
     [SerializeField] private NetMonsterControllerAgent monsterControllerAgent;
+    [SerializeField] private NetPlayerControllerAgent playerControllerAgent;
     [SerializeField] private float cooltime;
+
+
     public Nodes.Room Room => room;
     public NetGameAgent GameAgent => gameAgent;
     public NetMonsterControllerAgent MonsterControllerAgent => monsterControllerAgent;
+    public NetPlayerControllerAgent PlayerControllerAgent => playerControllerAgent;
 
     private IEnumerator Start()
     {
@@ -30,11 +34,15 @@ public class NetGameRuler : MonoBehaviour
             yield return null;
         }
 
+        room.gameRuler = this;
+
         while (gameAgent == null)
         {
             yield return null;
         }
         gameAgent.gameObject.SetActive(true);
+        monsterControllerAgent.gameObject.SetActive(true);
+        playerControllerAgent.gameObject.SetActive(true);
     }
 
     private void OnEnable()
@@ -92,6 +100,7 @@ public class NetGameRuler : MonoBehaviour
             {
                 var sendData = new NetNodes.Server.GameTick();
                 monsterControllerAgent.GetMonstersInfo(out sendData.monstersInfo);
+                playerControllerAgent.GetPlayersInfo(out sendData.playersInfo);
 
                 while(completePlayers.Count > 0)
                 {

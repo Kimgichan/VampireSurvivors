@@ -8,15 +8,12 @@ public class Follow : MonoBehaviour
     void FixedUpdate()
     {
         if (GameManager.Instance == null) return;
-        if (GameManager.Instance.timeScaleController == null) return;
         if (GameManager.Instance.gameController == null) return;
-
         var GC = GameManager.Instance.gameController;
-
-        if(GC.Player != null)
+        if(GC.targetPlayer != null)
         {
-            var pos = Vector2.Lerp(transform.position, GC.Player.transform.position, 
-                GameManager.Instance.timeScaleController.GameTimeScaleUpdate);
+            var pos = Vector2.Lerp(transform.position, GC.targetPlayer.transform.position, 
+                Time.deltaTime);
             transform.position = new Vector3(pos.x, pos.y, transform.position.z);
         }
     }

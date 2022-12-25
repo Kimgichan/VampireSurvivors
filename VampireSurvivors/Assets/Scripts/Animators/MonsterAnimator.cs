@@ -11,8 +11,6 @@ public class MonsterAnimator : MonoBehaviour
     [SerializeField] protected AnimationClip deathAnim;
     [SerializeField] protected AnimationClip createAnim;
 
-    protected UnityAction deathCall;
-    protected UnityAction createCall;
 
     public float AnimSpeed
     {
@@ -39,62 +37,33 @@ public class MonsterAnimator : MonoBehaviour
     {
         if (createAnim != null)
             animator.Play(createAnim.name, -1, 0f);
-        else CreateCall();
     }
 
     public void OnDeath()
     {
         if (deathAnim != null)
             animator.Play(deathAnim.name, -1, 0f);
-        else DeathCall();
     }
 
-    public void DeathCall()
-    {
-        if (deathCall != null)
-            deathCall();
-    }
-    public void CreateCall()
-    {
-        if (createCall != null)
-            createCall();
-    }
+    #region Æó±â Ã³¸®
 
     public void AddCreateCall(UnityAction createCall)
     {
-        if (createCall == null) return;
-        if (this.createCall == null)
-            this.createCall = createCall;
-        else
-            this.createCall += createCall;
-    }
-    public void RemoveCreateCall(UnityAction createCall)
-    {
-        if (createCall == null) return;
-        if (this.createCall != null)
-            this.createCall -= createCall;
+
     }
 
     public void ClearCreateCall()
     {
-        createCall = null;
+
     }
     public void AddDeathCall(UnityAction deathCall)
     {
-        if (deathCall == null) return;
-        if (this.deathCall == null)
-            this.deathCall = deathCall;
-        else
-            this.deathCall += deathCall;
+
     }
-    public void RemoveDeathCall(UnityAction deathCall)
-    {
-        if (deathCall == null) return;
-        if (this.deathCall != null)
-            this.deathCall -= deathCall;
-    }
+
     public void ClearDeathCall()
     {
-        deathCall = null;
+
     }
+    #endregion
 }

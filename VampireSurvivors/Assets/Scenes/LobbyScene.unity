@@ -4161,7 +4161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playTabOpenTime: 0.3
   playTab: {fileID: 1551851489}
-  multi_x3Btn: {fileID: 420442414}
+  multi_x2Btn: {fileID: 420442414}
   singleBtn: {fileID: 1768572517}
   stayPanel: {fileID: 338764912}
   countTxt: {fileID: 1840153982}
@@ -4687,7 +4687,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1/3
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 0c54e240847abdf40ad3150693037648, type: 2}
   m_sharedMaterial: {fileID: 5812013707933496689, guid: 0c54e240847abdf40ad3150693037648, type: 2}

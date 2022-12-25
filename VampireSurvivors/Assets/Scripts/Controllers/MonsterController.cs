@@ -7,11 +7,11 @@ using NaughtyAttributes;
 public class MonsterController : MonoBehaviour 
 {
     [SerializeField] private List<Monster> monsters;
+    private HashSet<int> checkList;
     [SerializeField] private Transform map;
-    [SerializeField] private float lerpTime;
-    private float lerpTimer;
     [ReadOnly] [SerializeField] private NetNodes.Server.MonstersInfo currentInfo;
-
+    [SerializeField] private float lerpForce;
+    private bool init = true;
     /// <summary>
     /// 필드에서 활성화된 몬스터 카운트
     /// 제거될 예정
@@ -47,24 +47,13 @@ public class MonsterController : MonoBehaviour
         GameManager.Instance.monsterController = this;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-        if(lerpTimer < lerpTime)
+        for(int i = 0, icount = currentInfo.monsters.Length; i<icount; i++)
         {
-            lerpTimer += Time.deltaTime;
-            var percent = 1f - lerpTimer / lerpTime;
-            for(int i = 0, icount = currentInfo.ID_List.Length; i<icount; i++)
-            {
-                var id = currentInfo.ID_List[i];
-                if(id > -1)
-                {
-                    Vector3 pos = Vector2.Lerp(monsters[id].transform.localPosition, currentInfo.posList[i], percent);
-
-                    pos.z = pos.y * 0.05f;
-                    monsters[id].transform.localPosition = pos;
-                    monsters[id].CurrentHP = currentInfo.currentHPList[i];
-                }
-            }
+            Vector3 pos = Vector2.Lerp(monsters[currentInfo.monsters[i].id].transform.localPosition, currentInfo.monsters[i].pos, lerpForce);
+            pos.z = pos.y * 0.05f;
+            monsters[currentInfo.monsters[i].id].transform.localPosition = pos;
         }
     }
 
@@ -73,28 +62,43 @@ public class MonsterController : MonoBehaviour
         return null;
     }
     
-    public void Push(Monster monster)
-    {
-        
-    }
 
-    public void Update(in NetNodes.Server.MonstersInfo monstersInfo)
+    public void SetMonstersInfo(in NetNodes.Server.MonstersInfo monstersInfo)
     {
         currentInfo = monstersInfo;
-        lerpTimer = 0f;
 
-        for(int i = 0, icount = monsters.Count; i<icount; i++)
+        if (checkList == null) checkList = new HashSet<int>();
+        else checkList.Clear();
+
+        for(int i = 0, icount = monstersInfo.monsters.Length; i<icount; i++)
         {
-            monsters[i].gameObject.SetActive(false);
+            checkList.Add(monstersInfo.monsters[i].id);
+            monsters[monstersInfo.monsters[i].id].gameObject.SetActive(true);
+            monsters[monstersInfo.monsters[i].id].CurrentHP = currentInfo.monsters[i].currentHP;
+            monsters[monstersInfo.monsters[i].id].OriginalHP = currentInfo.monsters[i].originalHP;
         }
 
-        for(int i = 0, icount = monstersInfo.ID_List.Length; i<icount; i++)
+        for(int i =0, icount = monsters.Count; i<icount; i++)
         {
-            var id = monstersInfo.ID_List[i];
-            if(id > -1)
+            if (!checkList.Contains(i))
             {
-                monsters[id].gameObject.SetActive(true);
+                monsters[i].gameObject.SetActive(false);
             }
+        }
+
+        Init();
+    }
+
+    private void Init()
+    {
+        if (init)
+        {
+            for(int i = 0, icount = currentInfo.monsters.Length; i<icount; i++)
+            {
+                monsters[currentInfo.monsters[i].id].transform.localPosition = currentInfo.monsters[i].pos;
+            }
+
+            init = false;
         }
     }
 }

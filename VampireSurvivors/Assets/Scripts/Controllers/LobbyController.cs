@@ -37,14 +37,6 @@ public class LobbyController : MonoBehaviour
         PlayPanelInit();
     }
 
-    public void GameStart()
-    {
-        if(LoadSceneManager.Instance != null)
-        {
-            LoadSceneManager.Instance.LoadStage();
-        }
-    }
-
     #region Chat Panel
     private void ChatInit()
     {

@@ -163,9 +163,25 @@ public class TCPServer_VampireSurvivors : TCPServer
         {
             var newRoom = new Room(enterRoom.size, enterRoom.stage);
             newRoom.AddPlayer(enterRoom.player);
-            var newRooms = new LinkedList<Room>();
-            newRooms.AddFirst(newRoom);
-            queueRooms.Add(enterRoom.stage, newRooms);
+
+            if(clientTable.TryGetValue(enterRoom.player, out VampireSurvivorsClientInfo info))
+            {
+                info.room = newRoom;
+
+                if (newRoom.PlayerCount == newRoom.RoomSize)
+                {
+                    newRoom.isRun = true;
+                    readyRooms.Enqueue(newRoom);
+                }
+                else
+                {
+                    var newRooms = new LinkedList<Room>();
+                    newRooms.AddFirst(newRoom);
+                    queueRooms.Add(enterRoom.stage, newRooms);
+                }
+
+                RoomEcho(newRoom);
+            }
         }
     }
     private void RoomEcho(Room room)
@@ -313,6 +329,14 @@ public class ServerClient_VampireSurvivors : ServerClient
                     {
                         RecvData_Chat(JsonUtility.FromJson<Client.Chat>(split[1]));
                     }break;
+                case Data.PlayerMoveInput_Client:
+                    {
+                        RecvData_PlayerMoveInput(JsonUtility.FromJson<Client.PlayerMoveInput>(split[1]));
+                    }break;
+                case Data.Ready_Client:
+                    {
+                        RecvData_Ready(JsonUtility.FromJson<Client.Ready>(split[1]));
+                    }break;
             }
         }
         catch
@@ -337,7 +361,7 @@ public class ServerClient_VampireSurvivors : ServerClient
     }
     private void RecvData_EnterRoom(Client.EnterRoom enterRoom)
     {
-        if(enterRoom.size < 1 || enterRoom.stage == "" || enterRoom.player == "")
+        if(server == null || enterRoom.size < 1 || enterRoom.stage == "" || server.GetClientInfo(enterRoom.player) == null)
         {
             SendData_CancelRoom();
             return;
@@ -352,6 +376,28 @@ public class ServerClient_VampireSurvivors : ServerClient
     private void RecvData_Chat(Client.Chat chat)
     {
         server.Chat(chat);
+    }
+    private void RecvData_PlayerMoveInput(Client.PlayerMoveInput input)
+    {
+        if (server == null) return;
+
+        var info = server.GetClientInfo(player);
+        if (info == null) return;
+        if (info.room == null) return;
+        if (info.room.gameRuler == null) return;
+        var agent = info.room.gameRuler.PlayerControllerAgent;
+        if (agent == null) return;
+
+        agent.SetPlayerMoveInput(input);
+    }
+    private void RecvData_Ready(Client.Ready ready)
+    {
+        if (server == null) return;
+
+        var info = server.GetClientInfo(ready.player);
+        if (info == null) return;
+        if (info.room == null) return;
+        info.room.SetPercent(ready);
     }
     #endregion
 }

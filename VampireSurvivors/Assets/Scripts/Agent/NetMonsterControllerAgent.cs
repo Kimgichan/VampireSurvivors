@@ -23,12 +23,23 @@ public class NetMonsterControllerAgent : MonoBehaviour
     [SerializeField] List<Monster> remainMonsters;
     [ReadOnly] [SerializeField] private int fieldCount = 0;
     [ReadOnly] [SerializeField] List<Monster> fieldMonsters;
+    public NetGameRuler GameRuler => gameRuler;
+    private bool init = false;
 
-
-    private void Start()
+    private void OnEnable()
+    {
+        if (!init)
+        {
+            init = true;
+            Init();
+        }
+        MonsterReset();
+        StartCoroutine(SpawnTickCor());
+    }
+    private void Init()
     {
         remainCount = remainMonsters.Count;
-        for(int i = 0; i<remainCount; i++)
+        for (int i = 0; i < remainCount; i++)
         {
             remainMonsters[i].id = i;
         }
@@ -36,15 +47,10 @@ public class NetMonsterControllerAgent : MonoBehaviour
         fieldMonsters = new List<Monster>(capacity);
         fieldCount = 0;
 
-        for(int i = 0, icount = fieldCount; i<icount; i++)
+        for (int i = 0, icount = capacity; i < icount; i++)
         {
             fieldMonsters.Add(null);
         }
-    }
-    private void OnEnable()
-    {
-        MonsterReset();
-        StartCoroutine(SpawnTickCor());
     }
 
     private void MonsterReset()
@@ -67,25 +73,25 @@ public class NetMonsterControllerAgent : MonoBehaviour
     {
         info = new NetNodes.Server.MonstersInfo();
 
-        info.ID_List = new int[fieldCount];
-        info.posList = new Vector2[fieldCount];
-        info.currentHPList = new int[fieldCount];
+        //info.ID_List = new int[fieldCount];
+        //info.posList = new Vector2[fieldCount];
+        //info.currentHPList = new int[fieldCount];
+        info.monsters = new NetNodes.Server.MonsterInfo[fieldCount];
 
         for (int i = 0; i < fieldCount; i++)
         {
             var monster = fieldMonsters[i];
             if (monster == null)
             {
-                info.ID_List[i] = -1;
+                info.monsters[i].id = -1;
                 continue;
             }
 
-            info.ID_List[i] = monster.id;
-            info.posList[i] = monster.transform.localPosition;
-            info.currentHPList[i] = monster.CurrentHP;
+            info.monsters[i].id = monster.id;
+            info.monsters[i].pos = monster.transform.localPosition;
+            info.monsters[i].currentHP = monster.CurrentHP;
+            info.monsters[i].originalHP = monster.OriginalHP;
         }
-
-
     }
 
     private IEnumerator SpawnTickCor()
@@ -106,6 +112,8 @@ public class NetMonsterControllerAgent : MonoBehaviour
     }
     private void SpawnTick()
     {
+        if (capacity <= fieldCount) return;
+
         var newMonster = Pop();
         if (newMonster == null) return;
 
@@ -114,7 +122,7 @@ public class NetMonsterControllerAgent : MonoBehaviour
         pos.y = Random.Range(-spawnRange.y, spawnRange.y);
 
         newMonster.transform.localPosition = pos;
-        newMonster.Active();
+        newMonster.gameObject.SetActive(true);
     }
     private void Push(Monster monster)
     {

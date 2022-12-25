@@ -66,11 +66,7 @@ public class PlayPanel : MonoBehaviour
     }
     private void GamePlay(int playerCount)
     {
-        if(playerCount == 1)
-        {
-
-        }
-        else if(playerCount > 0)
+        if(playerCount > 0)
         {
             if (NetManager.Instance == null || NetManager.Instance.Client == null)
             {

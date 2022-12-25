@@ -48,4 +48,5 @@ MonoBehaviour:
   lobbyScene: LobbyScene
   playScene: GameScene
   roomLobbyScene: RoomLobbyScene
+  cooltime: 0.3
   loadingController: {fileID: 0}

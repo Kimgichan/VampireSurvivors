@@ -22,6 +22,11 @@ public class TCPServer : MonoBehaviour
     TcpListener server;
     private IEnumerator networkCor;
 
+
+    private void Awake()
+    {
+        Application.targetFrameRate = 60;
+    }
     void Start()
     {
         Init();
@@ -85,10 +90,9 @@ public class TCPServer : MonoBehaviour
 
     private IEnumerator NetworkCor()
     {
-        var wait = new WaitForSeconds(cooltime);
         while (true)
         {
-            yield return wait;
+            yield return null;
 
             for(int i = 0; i<connectClientCount; i++)
             {
@@ -183,8 +187,15 @@ public class ServerClient
     {
         if(stream != null && stream.DataAvailable)
         {
-            string data = reader.ReadLine();
-            RecvData(data);
+            try
+            {
+                string data = reader.ReadLine();
+                RecvData(data);
+            }
+            catch
+            {
+
+            }
         }
     }
 

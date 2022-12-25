@@ -32,6 +32,8 @@ namespace NetEnums
         EnterRoom_Client,
         CancelRoom_Client,
         Chat_Client,
+        PlayerMoveInput_Client,
+        Ready_Client,
         #endregion
 
         #region Server

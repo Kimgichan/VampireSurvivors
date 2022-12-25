@@ -324,7 +324,7 @@ namespace Nodes
         [ReadOnly] [SerializeField] private List<string> players;
         [ReadOnly] [SerializeField] private List<float> percents;
 
-
+        [ReadOnly] public NetGameRuler gameRuler;
         public string Stage => stage;
         public int PlayerCount
         {
@@ -413,6 +413,14 @@ namespace Nodes
         {
             percents[indx] = val;
         }
+        public void SetPercent(NetNodes.Client.Ready ready)
+        {
+            var indx = players.FindIndex((name) => name == ready.player);
+            if(indx > -1)
+            {
+                percents[indx] = ready.percent;
+            }
+        }
 
         public NetNodes.Server.EnterRoom GetEnterRoom()
         {
@@ -477,6 +485,15 @@ namespace NetNodes
                 this.msg = string.Format(@"{0}", msg);
             }
         }
+
+        [Serializable] public struct PlayerMoveInput
+        {
+            public int id;
+            /// <summary>
+            /// Å©±â 0~1f
+            /// </summary>
+            public Vector2 force;
+        }
     }
 
     namespace Server
@@ -530,50 +547,40 @@ namespace NetNodes
         [Serializable]
         public struct GameTick
         {
+            public string stage;
+            public PlayersInfo playersInfo;
             public MonstersInfo monstersInfo;
         }
         [Serializable]
         public struct MonstersInfo
         {
-            public int[] ID_List;
-            public Vector2[] posList;
-            public int[] currentHPList;
-
-            public static MonstersInfo zero => new MonstersInfo()
-            {
-                ID_List = new int[0],
-                posList = new Vector2[0],
-                currentHPList = new int[0]
-            };
+            public MonsterInfo[] monsters;
         }
-
         [Serializable]
-        public struct WeaponAction
+        public struct MonsterInfo
         {
-            public int team;
-            public int creaturekey;
-            public int slotIndx;
-            public Vector2 targetPos;
-            public bool isAttack;
+            public int id;
+            public Vector2 pos;
+            public int currentHP;
+            public int originalHP;
         }
 
         [Serializable]
-        public struct CreatureHitAction
+        public struct PlayersInfo
         {
-            public int team;
-            public int creatureKey;
+            public PlayerInfo[] players;
         }
 
         [Serializable]
-        public struct MonsterCreateAction 
+        public struct PlayerInfo
         {
-            public int monsterKey;
+            public int id;
+            public string name;
+            public Vector2 pos;
+            public int currentHP;
+            public int originalHP;
         }
-        [Serializable]
-        public struct MonsterDeathAction
-        {
-            public int monsterKey;
-        }
+
         [Serializable]
         public struct Chat 
         {

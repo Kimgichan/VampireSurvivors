@@ -9,6 +9,11 @@ using Server = NetNodes.Server;
 
 public class TCPClient_VampireSurvivors : TCPClient
 {
+    private void OnApplicationQuit()
+    {
+        Close();
+    }
+
     public void SendData_Login(Client.Login login)
     {
         SendData($"{(int)Data.Login_Client}/{JsonUtility.ToJson(login)}");
@@ -30,8 +35,15 @@ public class TCPClient_VampireSurvivors : TCPClient
     {
         SendData($"{(int)Data.Chat_Client}/{JsonUtility.ToJson(chat)}");
     }
+    public void SendData_PlayerMoveInput(Client.PlayerMoveInput input)
+    {
+        SendData($"{(int)Data.PlayerMoveInput_Client}/{JsonUtility.ToJson(input)}");
+    }
 
-
+    public void SendData_Ready(Client.Ready ready)
+    {
+        SendData($"{(int)Data.Ready_Client}/{JsonUtility.ToJson(ready)}");
+    }
     protected override void RecvData(string data)
     {
         try
@@ -135,12 +147,9 @@ public class TCPClient_VampireSurvivors : TCPClient
         var LC = GameManager.GetLobbyController();
         if(LC != null)
         {
-            if (GameManager.Instance != null)
+            if (GameManager.Instance.player != "" && LoadSceneManager.Instance != null)
             {
-                if(GameManager.Instance.player != "" && LoadSceneManager.Instance != null)
-                {
-                    LoadSceneManager.Instance.LoadRoomLobby();
-                }
+                LoadSceneManager.Instance.LoadRoomLobby();
             }
         }
 
@@ -152,10 +161,21 @@ public class TCPClient_VampireSurvivors : TCPClient
     }
     private void RecvData_GameTick(Server.GameTick gameTick)
     {
+        if(LoadSceneManager.Instance != null)
+        {
+            LoadSceneManager.Instance.OpenStage();
+        }
+
         var MC = GameManager.GetMonsterController();
         if(MC != null)
         {
-            MC.Update(gameTick.monstersInfo);
+            MC.SetMonstersInfo(gameTick.monstersInfo);
+        }
+
+        var PC = GameManager.GetPlayersController();
+        if(PC != null)
+        {
+            PC.SetPlayersInfo(gameTick.playersInfo);
         }
     }
 }

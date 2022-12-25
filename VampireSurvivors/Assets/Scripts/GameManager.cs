@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public SkillController skillController;
     public TitleController titleController;
     public RoomLobbyController roomLobbyController;
+    public PlayersController playersController;
 
     [SerializeField] private List<int> stageLevels;
     public int selectStage;
@@ -161,6 +162,15 @@ public class GameManager : MonoBehaviour
             return null;
         }
         return Instance.roomLobbyController;
+    }
+
+    public static PlayersController GetPlayersController()
+    {
+        if(Instance == null || Instance.playersController == null)
+        {
+            return null;
+        }
+        return Instance.playersController;
     }
 
     public static WeaponData GetWeaponData(string name)

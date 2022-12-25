@@ -2,203 +2,77 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-
+using NaughtyAttributes;
 using Nodes;
 
 public class GameController : MonoBehaviour
 {
-    [SerializeField] private Character player;
     [SerializeField] private VirtualJoystick joystick;
-    [SerializeField] private int stageLevel;
-    [SerializeField] private int requireEXP;
-    [SerializeField] private int currentEXP;
-    [SerializeField] private NSkillTree skillTree;
-    [SerializeField] private NSkillBookInfo skillBookInfo;
+    public VirtualJoystick Joystick => joystick;
 
-    public Character Player {
-        get
-        {
-            return player;
-        }
-        set
-        {
-            if (player == value) return;
+    [ReadOnly] public Character targetPlayer;
+    [SerializeField] private float cooltime;
 
-            player = value;
-            player.Active();
-        }
-    }
-    public int StageLevel => stageLevel;
-    public int CurrentEXP
-    {
-        get => currentEXP;
-        set
-        {
-            if (value < 0)
-            {
-                currentEXP = 0;
-            }
-            else currentEXP = value;
 
-            Reward();
-        }
-    }
-    public int RequireEXP => requireEXP;
-
-    public NSkillBookInfo SkillBookInfo => skillBookInfo;
-    public NSkillTree SkillTree => skillTree;
-
-    // Start is called before the first frame update
     private IEnumerator Start()
-    {
-        while(NetManager.Instance == null)
-        {
-            yield return null;
-        }
-
-        while (NetManager.Instance.Server == null && NetManager.Instance.Client == null)
-            yield return null;
-
-        if (NetManager.Instance.Server != null)
-        {
-            var serverInitCor = ServerInitCor();
-            while (serverInitCor.MoveNext())
-            {
-                yield return serverInitCor.Current;
-            }
-        }
-        else
-        {
-            var clientInitCor = ClientInitCor();
-            while (clientInitCor.MoveNext())
-            {
-                yield return clientInitCor.Current;
-            }
-        }
-    }
-
-    private IEnumerator ServerInitCor()
-    {
-        yield return null;
-    }
-    private IEnumerator ClientInitCor()
     {
         while (GameManager.Instance == null)
             yield return null;
 
-        if (GameManager.Instance.gameController != null)
+        if(GameManager.Instance.gameController != null)
         {
             Destroy(gameObject);
             yield break;
         }
 
-        stageLevel = 1;
-        currentEXP = 0;
-
-        while (GameManager.Instance.timeScaleController == null)
-            yield return null;
-        while (GameManager.Instance.uiController == null)
-            yield return null;
-        while (GameManager.Instance.skillController == null)
-            yield return null;
-
-        GameManager.Instance.uiController.SetEXP_Percent(0f);
-
-        GameManager.Instance.timeScaleController.gameTimeScale = 0f;
-
         GameManager.Instance.gameController = this;
 
+        float timer = cooltime;
         joystick.Drag = (force) =>
         {
-            if (Player != null)
+            timer += Time.deltaTime;
+            if (timer > cooltime)
             {
-                //Player.Velocity = force;
-                Player.Move(force);
+                targetPlayer?.MoveInput(force);
+                timer = 0f;
             }
         };
         joystick.PointerUp = (e) =>
         {
-            if (Player != null)
-            {
-                //Player.Velocity = Vector2.zero;
-                Player.Move(Vector2.zero);
-            }
+            targetPlayer?.MoveInput(Vector2.zero);
+            timer = cooltime;
         };
-
-        if (Player != null)
-        {
-            Player.Active();
-        }
-
-        yield return new WaitForSeconds(1f);
-        GameManager.Instance.timeScaleController.gameTimeScale = 1f;
     }
 
 
-    public void GameEnd()
+    #region Æó±â
+
+    public Character Player {
+        get
+        {
+            return null;
+        }
+        set
+        {
+            
+        }
+    }
+    public int StageLevel => 1;
+    public int CurrentEXP
     {
-        var TSC = GameManager.GetTimeScaleController();
-        if(TSC != null)
+        get => 0;
+        set
         {
-            TSC.gameTimeScale = 0f;
-        }
-
-        if(LoadSceneManager.Instance != null)
-        {
-            LoadSceneManager.Instance.LoadLobby();
+            
         }
     }
 
-    private void Reward()
-    {
-        if(currentEXP >= RequireEXP)
-        {
-            currentEXP = 0;
-            var UC = GameManager.GetUIController();
-            if (UC != null)
-            {
-                UC.SetEXP_Percent(0f);
-            }
-            LevelUP();
-        }
-        else
-        {
-            var UC = GameManager.GetUIController();
-            if(UC != null)
-            {
-                UC.EXP_Percent = (float)CurrentEXP / RequireEXP;
-            }
-        }
-    }
+    public NSkillBookInfo SkillBookInfo => null;
+    public NSkillTree SkillTree => null;
 
-    private void LevelUP()
-    {
-        stageLevel += 1;
-
-        OnStop();
-
-        var UC = GameManager.GetUIController();
-        if(UC != null && UC.SkillBook != null)
-        {
-            UC.SkillBook.gameObject.SetActive(true);
-            UC.SkillBook.Active();
-        }  
-    }
-
-    public void OnStop()
-    {
-        var TSC = GameManager.GetTimeScaleController();
-        if (TSC != null)
-        {
-            TSC.gameTimeScale = 0f;
-        }
-    }
     public void OnReplay()
     {
-        var TSC = GameManager.GetTimeScaleController();
-        if (TSC != null)
-        {
-            TSC.gameTimeScale = 1f;
-        }
+
     }
+    #endregion
 }

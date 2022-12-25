@@ -9,6 +9,7 @@ public class LoadSceneManager : MonoBehaviour
     [SerializeField] private string lobbyScene;
     [SerializeField] private string playScene;
     [SerializeField] private string roomLobbyScene;
+    [SerializeField] private float cooltime;
 
     private static LoadSceneManager instance;
 
@@ -17,6 +18,8 @@ public class LoadSceneManager : MonoBehaviour
     public static LoadSceneManager Instance => instance;
 
     private IEnumerator loadingCor;
+
+    private IEnumerator loadStageCor;
 
     private void Awake()
     {
@@ -30,16 +33,54 @@ public class LoadSceneManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public void LoadStage()
+    private void LoadStage()
     {
-        //로딩창으로 가려서 중복 씬 로드 호출을 막을 예정
-        //SceneManager.Loa
-        if (loadingCor != null) return;
+        if (loadStageCor != null) return;
 
-        //loadingCor = LoadStageCor();
-        //StartCoroutine(loadingCor);
-        loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, playScene);
-        StartCoroutine(loadingCor);
+        loadStageCor = LoadStageCor();
+        StartCoroutine(loadStageCor);
+    }
+
+    public void OpenStage()
+    {
+        if (loadingCor != null) return;
+        if (loadStageCor == null) return;
+
+        SceneManager.UnloadSceneAsync(roomLobbyScene);
+        GameManager.Instance.roomLobbyController = null;
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(playScene));
+
+        StopCoroutine(loadStageCor);
+        loadStageCor = null;
+    }
+
+    private IEnumerator LoadStageCor()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.player == "")
+            yield break;
+        while(loadingCor != null)
+        {
+            yield return null;
+        }
+
+        var wait = new WaitForSeconds(cooltime);
+        var op = SceneManager.LoadSceneAsync(playScene, LoadSceneMode.Additive);
+
+        while (true)
+        {
+            yield return wait;
+            if (NetManager.Instance != null)
+            {
+                if(NetManager.Instance.Client != null)
+                {
+                    NetManager.Instance.Client.SendData_Ready(new NetNodes.Client.Ready()
+                    {
+                        percent = op.progress,
+                        player = GameManager.Instance.player
+                    });
+                }
+            }
+        }
     }
 
     public void LoadLobby()
@@ -65,9 +106,11 @@ public class LoadSceneManager : MonoBehaviour
     public void LoadRoomLobby()
     {
         if (loadingCor != null) return;
+        if (loadStageCor != null) return;
 
         loadingCor = LoadSceneCor(SceneManager.GetActiveScene().name, roomLobbyScene);
         StartCoroutine(loadingCor);
+        LoadStage();
     }
 
     private IEnumerator LoadSceneCor(string beforeScene, string afterScene)

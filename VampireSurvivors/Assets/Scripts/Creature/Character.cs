@@ -1,163 +1,117 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NaughtyAttributes;
 
 
 public class Character : Creature
 {
-    [SerializeField] private CharacterAnimator characterAnimator;
-    [SerializeField] private Rigidbody2D rigid2D;
+    #region 공통
     [SerializeField] private int currentHP;
-    [SerializeField] private float moveSpeed;
-    
-    private IEnumerator activeCor;
-
+    [SerializeField] private int originalHP;
     public int OriginalHP
     {
         get
         {
-            return 50;
+            if(NetManager.Instance != null)
+            {
+                if(NetManager.Instance.Client != null)
+                {
+                    return originalHP;
+                }
+                if(NetManager.Instance.Server != null)
+                {
+                    return 50;
+                }
+            }
+            return 0;
+        }
+        set
+        {
+            if(NetManager.Instance != null)
+            {
+                if(NetManager.Instance.Client != null)
+                {
+                    originalHP = value;
+                }
+            }
         }
     }
-
     public int CurrentHP
     {
-        set
-        {
-            var UC = GameManager.GetUIController();
-            if (UC != null)
-            {
-                UC.HP_Percent = value / (float)OriginalHP;
-            }
-
-            currentHP = value;
-        }
         get => currentHP;
+        set => currentHP = value;
     }
 
-    private Vector2 Velocity
+    private void OnEnable()
     {
-        get
+        if(NetManager.Instance != null)
         {
-            return rigid2D.velocity;
-        }
-        set
-        {
-            if(GameManager.Instance == null || GameManager.Instance.timeScaleController == null)
+            if(NetManager.Instance.Client != null)
             {
-                rigid2D.velocity = Vector2.zero;
-                return;
+                StartCoroutine(ZOrderCor());
             }
-            rigid2D.velocity = value * GameManager.Instance.timeScaleController.gameTimeScale * moveSpeed;
         }
     }
 
-    private void OnDisable()
+    public void MoveInput(Vector2 input)
     {
-        TurnOffActive();
-    }
-
-    public void Active()
-    {
-        gameObject.SetActive(true);
-        currentHP = OriginalHP;
-
-        var UC = GameManager.GetUIController();
-        if(UC != null)
+        if(NetManager.Instance != null)
         {
-            UC.SetHP_Percent(currentHP / (float)OriginalHP);
-        }
-
-
-        characterAnimator.ClearCreateCall();
-        characterAnimator.AddCreateCall(TurnOnActive);
-
-        characterAnimator.ClearDeathCall();
-        characterAnimator.AddDeathCall(Death);
-
-        characterAnimator.OnCreate();
-    }
-
-    private void TurnOnActive()
-    {
-        if (activeCor != null) return;
-
-        rigid2D.simulated = true;
-        characterAnimator.OnIdle();
-        activeCor = ActiveCor();
-        StartCoroutine(activeCor);
-    }
-
-    private void TurnOffActive()
-    {
-        rigid2D.simulated = false;
-        if (activeCor != null)
-        {
-            StopCoroutine(activeCor);
-            activeCor = null;
+            if(NetManager.Instance.Client != null)
+            {
+                NetManager.Instance.Client.SendData_PlayerMoveInput(new NetNodes.Client.PlayerMoveInput() { id = id, force = input });
+            }
+            else if(NetManager.Instance.Server != null)
+            {
+                rigid2D.velocity = input * moveSpeed;
+            }
         }
     }
+    #endregion
 
-    private void Death()
-    {
-        var gc = GameManager.GetGameController();
-        if(gc != null)
-        {
-            gc.GameEnd();
-        }
-    }
-
-    private IEnumerator ActiveCor()
+    #region 클라이언트
+    [Header("클라이언트")]
+    [SerializeField] private CharacterAnimator characterAnimator;
+    
+    private IEnumerator ZOrderCor()
     {
         while (true)
         {
             yield return null;
 
-            var pos = transform.position;
-            pos.z = pos.y * 0.001f;
-            transform.position = pos;
-
-            var TSC = GameManager.GetTimeScaleController();
-            if(TSC != null)
-            {
-                characterAnimator.AnimSpeed = TSC.gameTimeScale;
-            }
+            var pos = transform.localPosition;
+            pos.z = pos.y * 0.05f;
+            transform.localPosition = pos;
         }
     }
+    #endregion
 
-    public void Move(Vector2 force)
-    {
-        if (activeCor == null) return;
-
-        Velocity = force;
-    }
+    #region 서버
+    [Header("서버")]
+    [SerializeField] private NetPlayerControllerAgent playerControllerAgent;
+    [SerializeField] private Rigidbody2D rigid2D;
+    [SerializeField] private float moveSpeed;
+    [ReadOnly] public int id;
 
     public void OnHit(int damage)
     {
-        if (activeCor == null) return;
-
-        var hp = CurrentHP - damage;
-        if (hp <= 0)
+        if (currentHP > 0)
         {
-            CurrentHP = 0;
-            characterAnimator.OnDeath();
-        }
-        else
-        {
-            CurrentHP = hp;
-            characterAnimator.OnHit();
+            currentHP -= damage;
 
-            var UC = GameManager.GetUIController();
-            if(UC != null)
+            if (currentHP < 0)
             {
-                UC.HP_Percent = CurrentHP / (float)OriginalHP;
+                currentHP = 0;
+                OnDeath();
             }
         }
-
-        var DTC = GameManager.GetDamageTextController();
-        if(DTC != null)
-        {
-            DTC.TurnOnPopup(damage, transform.position, Enums.Creature.Character);
-        }
     }
+
+    private void OnDeath()
+    {
+
+    }
+    #endregion
+
 }
