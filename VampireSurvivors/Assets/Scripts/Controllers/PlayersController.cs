@@ -57,6 +57,7 @@ public class PlayersController : MonoBehaviour
         {
             var player = Instantiate(prefab, map);
             players.Add(player);
+            player.id = i;
 
             players[i].transform.localPosition = info.players[i].pos;
             if (GameManager.Instance.player != "" && GameManager.Instance.player == info.players[i].name)
